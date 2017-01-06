@@ -1,0 +1,81 @@
+Karol Regula and Reo Kimura
+Fnake
+Systems Final Project -- Design Document
+
+High Level Description 
+We will create a chat client integrated with the classic game, Snake. The chat client will include an authentication system and messaging + chat room functionality. Our version of the game, Fnake, is collaborative: rather than a single player making every move, control of the snake revolves around the group, with each player getting a single move per turn. Games are initiated via chat rooms.
+
+Reach goals: 
+ - Dynamic window resizing (window must be fixed size in core functionality)
+ - Custom one-to-one messaging chats solely for messaging, include message history stored in files.
+ - Friend functionality 
+ - Modifications to the Snake game. Various power-ups such as a speed-up, reversal of directional keys, shortening size of snake, etc.
+ - Passworded private rooms, room creators can invite users by username.
+ - More than one game (If we build a time machine somehow)
+
+User Interface
+ - User starts up their client (make & run).
+     Is prompted to type username.
+     If exists, user is prompted for a password.
+     If new, user is notified and must type in password twice.
+ - Main Menu
+     Shows list of commands that affect functions of the game.
+     List of all active rooms are shown (size + color code: red = full, green = open, yellow = game in progress)
+     Use commands from commands list.
+ - Chat room 
+     Type to chat, visible for all members in room, users are color coded
+     Use commands from commands list
+ - In Game
+     Arrow keys used to control snake, players take turn being granted control, each player is assigned a color (prior to the beginning of the game), the snake changes color accordingly to indicate whose turn it is.
+
+List of Commands:
+  Homepage:
+    !refresh - refreshes list of rooms on main menu
+    !join <room name> - joins specified game room, opens chat
+    !help - displays all possible commands (differentiates for homepage, chatroom, etc.) and explains game rules/controls
+    !create - creates a new room, user is prompted to enter room name and size (at least 2, now greater than preset maximum), creator automatically joins the room
+    !logout - logs out of account
+    !users - lists all active users
+    !whisper - sends a direct message to specified active user(s) (format: !whisper <user1> … <userN> <message>), messages are not saved (in core functionality); if a non-existent or inactive user is listed
+    !exit - completely shuts down client
+  Chat Room:
+    !ready - signal that user is ready, notifies all room members
+    !start - when in room, starts the game for all connected clients, will not work unless all connected clients signal ready 
+    !leave - leaves room
+    !help - displays all possible commands and explains game rules/controls
+    <no command> - message all members in room
+
+
+Technical Design:
+ 1. Start Page (Karol)
+      Login and registration. Stored in files, comma separated.  Possibly hashed.
+ 2. Homepage / Dashboard (Reo)
+      Support for all homepage commands. 
+      Color coded text for visibility. Done through printing functions.
+      Terminal style text display (scrolls from bottom).
+ 3. Lobby (Reo & Karol)
+      Game clients that joined a lobby can chat with each other. 
+      Server receives chat data, adds to file (semaphore), sends message to all clients.
+      !start command is used to start game
+ 4. Game (Karol & Reo)
+      Snake game redraws itself on entire screen.
+      Divided into boxes, each has coordinates. Colored boxes depict snake, special colored box for pickups.
+      Server cycles players, changes color of snake accordingly. Reads pipe/network input from client that is active.
+	
+Utilization of class material:
+  Semaphores: ensure that only one user can post a message to a room at a time
+  Files - store chat history for users
+  Signal handling - Ensure that clients disconnect from the server properly.
+  Networking - both players are able to view the current state of the game screen.
+  Pipes - enable communication between game clients and server
+
+Project Timeline
+  Start page functioning, can login + logout + shutdown (by 1/9)
+  Can create room, view rooms, join rooms (by 1/11)
+  Commands integration and message forwarding in rooms. (by 1/13)
+  Game code is up, basic controllable snake that changes colors, no multiple players yet. (by 1/16)
+  Rooms can start a game, game code incorporates player cycling and color changing. (by 1/18)
+  Playtesting, generation of dataset for demo purposes (until core is complete)
+  Implementation of reach features + testing/debugging (until deadline)
+
+
