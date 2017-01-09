@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <fncntl.h>
+#include <fcntl.h>
 
 #include "pipe_networking.h"
 
@@ -32,14 +32,15 @@ void authenticate( char * s ) { //handles all authentication cases
 	if userExists(s){
 		//prompt for password
 		*s = "User already exists in database, enter your password."
-	}else{
-		//add entry to file, ask for password, password confirmation
+	}
+	else{
+		//ask for password, password confirmation, and entry (username and password) if registration successful
 		*s = "New user, please enter password."
 	}
 }
 
 void userExists(char * s){
 	char buffer[100];
-	int database = open("database.csv", O_CREAT | O_RDONLY, 0644);//remove creat manually for now
-	read(database, buffer, );
+	int fdData = open("database.csv", O_CREAT | O_RDONLY, 0644);//remove creat manually for now
+	read(fdData, buffer, sizeof(buffer));
 }
