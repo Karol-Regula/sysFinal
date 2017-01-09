@@ -1,0 +1,9 @@
+ENTRY FORMAT:
+firstL -- TIMESTAMP
+<CHANGES>
+
+karolR -- 2017-01-09 11:46 AM
+- Added temporary pipe interface for login testing.
+- Outlined and started writing functions for logging in and registering.
+- Added and started devlog.
+- Wrote basic makefile.

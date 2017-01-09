@@ -2,13 +2,13 @@ Karol Regula and Reo Kimura
 Fnake
 Systems Final Project -- Design Document
 
-High Level Description 
+High Level Description
 We will create a chat client integrated with the classic game, Snake. The chat client will include an authentication system and messaging + chat room functionality. Our version of the game, Fnake, is collaborative: rather than a single player making every move, control of the snake revolves around the group, with each player getting a single move per turn. Games are initiated via chat rooms.
 
-Reach goals: 
+Reach goals:
  - Dynamic window resizing (window must be fixed size in core functionality)
  - Custom one-to-one messaging chats solely for messaging, include message history stored in files.
- - Friend functionality 
+ - Friend functionality
  - Modifications to the Snake game. Various power-ups such as a speed-up, reversal of directional keys, shortening size of snake, etc.
  - Passworded private rooms, room creators can invite users by username.
  - More than one game (If we build a time machine somehow)
@@ -22,7 +22,7 @@ User Interface
      Shows list of commands that affect functions of the game.
      List of all active rooms are shown (size + color code: red = full, green = open, yellow = game in progress)
      Use commands from commands list.
- - Chat room 
+ - Chat room
      Type to chat, visible for all members in room, users are color coded
      Use commands from commands list
  - In Game
@@ -40,7 +40,7 @@ List of Commands:
     !exit - completely shuts down client
   Chat Room:
     !ready - signal that user is ready, notifies all room members
-    !start - when in room, starts the game for all connected clients, will not work unless all connected clients signal ready 
+    !start - when in room, starts the game for all connected clients, will not work unless all connected clients signal ready
     !leave - leaves room
     !help - displays all possible commands and explains game rules/controls
     <no command> - message all members in room
@@ -50,18 +50,18 @@ Technical Design:
  1. Start Page (Karol)
       Login and registration. Stored in files, comma separated.  Possibly hashed.
  2. Homepage / Dashboard (Reo)
-      Support for all homepage commands. 
+      Support for all homepage commands.
       Color coded text for visibility. Done through printing functions.
       Terminal style text display (scrolls from bottom).
  3. Lobby (Reo & Karol)
-      Game clients that joined a lobby can chat with each other. 
+      Game clients that joined a lobby can chat with each other.
       Server receives chat data, adds to file (semaphore), sends message to all clients.
       !start command is used to start game
  4. Game (Karol & Reo)
       Snake game redraws itself on entire screen.
       Divided into boxes, each has coordinates. Colored boxes depict snake, special colored box for pickups.
       Server cycles players, changes color of snake accordingly. Reads pipe/network input from client that is active.
-	
+
 Utilization of class material:
   Semaphores: ensure that only one user can post a message to a room at a time
   Files - store chat history for users
@@ -77,5 +77,3 @@ Project Timeline
   Rooms can start a game, game code incorporates player cycling and color changing. (by 1/18)
   Playtesting, generation of dataset for demo purposes (until core is complete)
   Implementation of reach features + testing/debugging (until deadline)
-
-
