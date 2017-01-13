@@ -6,12 +6,14 @@
 
 #include "pipe_networking.h"
 
-void process( char * s );
+void process(char *);
+int userExists(char *);
+void authenticate(char *);
 
 int main() {
 
 	int to_client, from_client;
-	char buffer[MESSAGE_BUFFER_SIZE];
+	char * buffer[MESSAGE_BUFFER_SIZE];
 
 	to_client = server_handshake( &from_client );
 
@@ -19,7 +21,7 @@ int main() {
 		read( from_client, buffer, sizeof(buffer) );
 		//HOW I SEE THIS: Clinent not only sends what user inputs but an extra bit, a number that indicates what the server must do with the input
 		//if (statusNumber == 1){authenticate
-		authenticate(buffer);
+		authenticate(*buffer);
 		//if (statusNumber == 2){something else etc.
 		write( to_client, buffer, sizeof(buffer));
 	}
@@ -28,19 +30,29 @@ int main() {
 }
 
 
-void authenticate( char * s ) { //handles all authentication cases
-	if userExists(s){
+void authenticate(char * s) { //handles all authentication cases
+	if (userExists(s)){
 		//prompt for password
-		*s = "User already exists in database, enter your password."
+		s = "User already exists in database, enter your password.";
 	}
 	else{
 		//ask for password, password confirmation, and entry (username and password) if registration successful
-		*s = "New user, please enter password."
+		s = "New user, please enter password.";
 	}
 }
 
-void userExists(char * s){
-	char buffer[100];
-	int fdData = open("database.csv", O_CREAT | O_RDONLY, 0644);//remove creat manually for now
-	read(fdData, buffer, sizeof(buffer));
+int userExists(char * s){
+	//reads line by line and compares usernames
+
+	char * buffer = NULL;
+	int size;
+	size_t len = 0;
+	FILE * fdData;
+	int descriptor;
+	descriptor = open("database.csv", O_CREAT | O_RDONLY, 0644);//remove creat manually for now
+
+	while ( (getline(&buffer, &len, fdData)) != -1) {
+	  printf("%s", buffer);
+	}
+	return 1; //for now
 }

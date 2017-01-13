@@ -5,7 +5,7 @@
 
 #include "pipe_networking.h"
 
-
+int loginProcedure(int, int);
 
 int main() {
 
@@ -18,7 +18,7 @@ int main() {
 
 	while(1){
 		if(! loggedIn){
-			login();
+			loginProcedure(to_server, from_server);
 		}
 		//do other stuff needed after login here
 	}
@@ -27,10 +27,10 @@ int main() {
 }
 
 
-int loginProcedure(){//working on this, will communicate with server several times
+int loginProcedure(int to_server, int from_server){//working on this, will communicate with server several times
 	char buffer[MESSAGE_BUFFER_SIZE];
 	printf("Enter Login: ");
-	fgets( buffer[1], sizeof(buffer), stdin );
+	fgets( &buffer[1], sizeof(buffer), stdin );
 	buffer[0] == 0; //login
 	char *p = strchr(buffer, '\n');
 	*p = 0;

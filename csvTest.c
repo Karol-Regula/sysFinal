@@ -15,7 +15,7 @@ void authenticate(){
 }
 
 int userExists(user){
-  return 0; 
+  return 0;
 }
 
 void registration(user, password){
