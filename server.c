@@ -31,6 +31,7 @@ int main() {
 
 
 void authenticate(char * s) { //handles all authentication cases
+	printf("authenticating\n");
 	if (userExists(s)){
 		//prompt for password
 		s = "User already exists in database, enter your password.";
@@ -42,17 +43,19 @@ void authenticate(char * s) { //handles all authentication cases
 }
 
 int userExists(char * s){
+	printf("checking if user already exists\n");
 	//reads line by line and compares usernames
 
 	char * buffer = NULL;
 	int size;
-	size_t len = 0;
-	FILE * fdData;
-	int descriptor;
-	descriptor = open("database.csv", O_CREAT | O_RDONLY, 0644);//remove creat manually for now
+	size_t len = 2;
+	int fdData;
+	printf("opening database:\n");
+	fdData = open("database.csv", O_CREAT | O_RDONLY, 0644);//remove creat manually for now
 
-	while ( (getline(&buffer, &len, fdData)) != -1) {
-	  printf("%s", buffer);
-	}
+	printf("reading database:\n");
+	read(fdData, buffer, len);
+	printf("%s", buffer);
+
 	return 1; //for now
 }
