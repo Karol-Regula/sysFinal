@@ -4,24 +4,31 @@
 #include <fcntl.h>
 
 int main(){
+  char name[100];
+  printf("Enter username: ");
+  fgets(name, sizeof(name), stdin);
+  
   authenticate();
   return 0;
 }
 
-void authenticate(){
-  int status;
-  if () register;
-  else status == 0;
+void authenticate(char* data[]){
+  if (strcmp(data[2], "register") == 0)
+    return registration(data[0], data[1]);
+  if (strcmp(data[2], "login") == 0)
+    return logination(data[0], data[1]);
+  else
+    return "error!";	    
 }
 
-int userExists(user){
-  return 0;
+int userExists(char* user){
+  return 0; 
 }
 
-void registration(user, password){
+void registration(char* user, char* pass){
 }
 
-void login(user, password){
+void logination(char* user, char* pass){
 }
 
 
