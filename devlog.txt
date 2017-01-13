@@ -7,3 +7,9 @@ karolR -- 2017-01-09 11:46 AM
 - Outlined and started writing functions for logging in and registering.
 - Added and started devlog.
 - Wrote basic makefile.
+
+karolR -- 2017-01-13 11:44 AM
+- worked on login, cleaned up compile errors
+- added csv database
+- added .gitignore to ignore compiled files
+- server can read database (badly)
