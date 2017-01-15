@@ -1,66 +1,71 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#include <errno.h>
+
+#include <sys/socket.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include "pipe_networking.h"
+#include <netinet/in.h>
+#include <unistd.h>
+#include <arpa/inet.h>
 
-int server_handshake(int * from_client){
-	int status;
-	int to_client;
-	char received[MESSAGE_BUFFER_SIZE];
-	char out[MESSAGE_BUFFER_SIZE];
-
-	status = mkfifo("mario", 0644);
-
-	printf("[SERVER] Waiting for connection: \n");
-	*from_client = open("mario", O_RDONLY, 0644);
-
-	read(*from_client, received, sizeof(received));
-	printf("[SERVER] Incoming connection from %s\n", received );
-	remove("mario");
-
-	//BREAK UP RIGHT HERE
-
-	to_client = open(received, O_WRONLY, 0644);
-
-	strcpy(out,"Welcome");
-	write(to_client, out, sizeof(out));
-
-	printf("[SERVER] from_client: %d\n", *from_client);
-	printf("[SERVER] to_client: %d\n", to_client);
-
-	read(*from_client, received, sizeof(received));
-	printf("[SERVER] Received: %s\n", received);
-
-	return to_client;
+void error_check( int i, char *s ) {
+  if ( i < 0 ) {
+    printf("%d\n", i);
+    printf("[%s] error %d: %s\n", s, errno, strerror(errno) );
+    exit(1);
+  }
 }
 
-int client_handshake(int * to_server){
-	int status;
-	char pid[MESSAGE_BUFFER_SIZE];
-	char received[MESSAGE_BUFFER_SIZE];
-	char out[MESSAGE_BUFFER_SIZE];
-	int from_server;
+int server_setup() {
 
-	sprintf(pid, "%d" ,getpid());
-	status = mkfifo(pid, 0644);
+  int sd;
+  int i;
 
-	*to_server = open("mario", O_WRONLY, 0644);
-	write(*to_server, pid, sizeof(pid));
+  sd = socket( AF_INET, SOCK_STREAM, 0 );
+  error_check( sd, "server socket" );
 
-	from_server = open(pid, O_RDONLY, 0644);
-	read(from_server, received, sizeof(received));
-	printf("[CLIENT] received: %s\n", received);
+  struct sockaddr_in sock;
+  sock.sin_family = AF_INET;
+  sock.sin_addr.s_addr = INADDR_ANY;
+  sock.sin_port = htons(9001);
+  i = bind( sd, (struct sockaddr *)&sock, sizeof(sock) );
+  error_check( i, "server bind" );
 
-	remove(pid);
-	strcpy(out, "Hi");
+  return sd;
+}
 
-	write(*to_server, out, sizeof(out));
+int server_connect(int sd) {
+  int connection, i;
 
-	printf("[CLIENT] to_server: %d\n", *to_server);
-	printf("[CLIENT] from_server: %d\n", from_server);
-	return from_server;
+  i = listen(sd, 1);
+  error_check( i, "server listen" );
+
+  struct sockaddr_in sock1;
+  unsigned int sock1_len = sizeof(sock1);
+  connection = accept( sd, (struct sockaddr *)&sock1, &sock1_len );
+  error_check( connection, "server accept" );
+
+  printf("[server] connected to %s\n", inet_ntoa( sock1.sin_addr ) );
+
+  return connection;
+}
+
+
+int client_connect( char *host ) {
+  int sd, i;
+
+  sd = socket( AF_INET, SOCK_STREAM, 0 );
+  error_check( sd, "client socket" );
+
+  struct sockaddr_in sock;
+  sock.sin_family = AF_INET;
+  inet_aton( host, &(sock.sin_addr));
+  sock.sin_port = htons(9001);
+
+  printf("[client] connecting to: %s\n", host );
+  i = connect( sd, (struct sockaddr *)&sock, sizeof(sock) );
+  error_check( i, "client connect");
+
+  return sd;
 }

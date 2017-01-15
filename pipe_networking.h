@@ -1,4 +1,16 @@
-#define MESSAGE_BUFFER_SIZE 100
+#ifndef NETWORKING_H
+#define NETWORKING_H
 
-int server_handshake(int *);
-int client_handshake(int *);
+#define MESSAGE_BUFFER_SIZE 1000
+
+void error_check( int i, char *s );
+
+int server_setup();
+int server_connect(int sd);
+
+int client_connect( char *host );
+
+#endif
+
+//int server_handshake(int *);
+//int client_handshake(int *);

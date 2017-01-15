@@ -11,18 +11,37 @@ void process(char *);
 int userExists(char *);
 char * authenticate(char *);
 int checkPassword(char *);
+void sub_server(int);
 
 int main() {
 
-	int to_client, from_client;
+	int sd, connection;
+
+
 	char buffer [MESSAGE_BUFFER_SIZE];
+
+	sd = server_setup();
+ 	while (1) {
+		connection = server_connect( sd );
+		int f = fork();
+	  if ( f == 0 ) {
+			close(sd);
+			sub_server( connection );
+			exit(0);
+	 	}
+	 	else {
+		 	close( connection );
+	 	}
+ 	}
+ 	return 0;
+}
+
+void sub_server( int sd ) {
+
 	int statusNumber = -1;
-
-	to_client = server_handshake( &from_client );
-
-
+  char buffer[MESSAGE_BUFFER_SIZE];
 	while(1){
-		read( from_client, buffer, sizeof(buffer) );
+		read( sd, buffer, sizeof(buffer) );
 		printf("Getting statusNumber\n");
 		statusNumber = atoi(&buffer[0]);
 		printf("statusNumber: %d\n", statusNumber);
@@ -44,10 +63,8 @@ int main() {
 		}
 
 		printf("buffer (sending back to client): %s\n", buffer);
-		write( to_client, buffer, sizeof(buffer));
+		write( sd, buffer, sizeof(buffer));
 	}
-
-	return 0;
 }
 
 

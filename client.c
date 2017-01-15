@@ -5,7 +5,7 @@
 
 #include "pipe_networking.h"
 
-int loginProcedure(int, int);
+int loginProcedure(int);
 void interpreter();
 
 //statusNumbers
@@ -13,18 +13,26 @@ void interpreter();
 //2 - enter password (auth)
 //3 - confirm password (auth)
 
-int main() {
+int main(int argc, char *argv[]) {
+
+	char *host;
+  if (argc != 2 ) {
+	 	printf("host not specified, conneting to 127.0.0.1\n");
+	 	host = "127.0.0.1";
+ 	}
+ 	else
+	 	host = argv[1];
+ 	int sd;
+
+ sd = client_connect( host );
 
 
-	int to_server, from_server;
 	int loggedIn = 0;
 	char username[40];
 
-	from_server = client_handshake( &to_server );
-
 	while(1){
 		if(! loggedIn){
-			loggedIn = loginProcedure(to_server, from_server);
+			loggedIn = loginProcedure(sd);
 		}else{
 			interpreter();
 		}
@@ -35,7 +43,7 @@ int main() {
 }
 
 
-int loginProcedure(int to_server, int from_server){//working on this, will communicate with server several times
+int loginProcedure(int sd){//working on this, will communicate with server several times
 	char buffer[MESSAGE_BUFFER_SIZE];
 
 	//login
@@ -48,8 +56,8 @@ int loginProcedure(int to_server, int from_server){//working on this, will commu
 	*p = 0;
 
 	printf("%s\n", buffer);
-	write( to_server, buffer, sizeof(buffer) );
-	read( from_server, buffer, sizeof(buffer) );
+	write( sd, buffer, sizeof(buffer) );
+	read( sd, buffer, sizeof(buffer) );
 
 	//password
 	printf( "(from server) %s\n", buffer );
@@ -65,7 +73,7 @@ int loginProcedure(int to_server, int from_server){//working on this, will commu
 		*q = '2'; //login statusNumber
 		char *p = strchr(buffer, '\n');
 		*p = 0;
-		write( to_server, buffer, sizeof(buffer) );
+		write( sd, buffer, sizeof(buffer) );
 
 	}else{
 		//register
@@ -76,10 +84,10 @@ int loginProcedure(int to_server, int from_server){//working on this, will commu
 		*q = '3'; //login statusNumber
 		char *p = strchr(buffer, '\n');
 		*p = 0;
-		write( to_server, buffer, sizeof(buffer) );
+		write( sd, buffer, sizeof(buffer) );
 	}
 
-	read( from_server, buffer, sizeof(buffer) );
+	read( sd, buffer, sizeof(buffer) );
 	printf("buffer (from server): %s\n", buffer);
 	if (strcmp(buffer, "Login Successful") == 0){
 		printf("YOU ARE LOGGED IN!\n");
