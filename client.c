@@ -7,6 +7,11 @@
 
 int loginProcedure(int, int);
 
+//statusNumbers
+//1 - enter username (auth)
+//2 - enter password (auth)
+//3 - confirm password (auth)
+
 int main() {
 
 
@@ -29,15 +34,50 @@ int main() {
 
 int loginProcedure(int to_server, int from_server){//working on this, will communicate with server several times
 	char buffer[MESSAGE_BUFFER_SIZE];
+
+	//login
 	printf("Enter Login: ");
-	fgets( &buffer[1], sizeof(buffer), stdin );
-	buffer[0] == 0; //login
+	fgets( &buffer[1], sizeof(buffer) - 1, stdin );
+	printf("buffer: %s\n", buffer);
+	char *q = &buffer[0];
+	*q = '1'; //login statusNumber
 	char *p = strchr(buffer, '\n');
 	*p = 0;
 
+	printf("%s\n", buffer);
 	write( to_server, buffer, sizeof(buffer) );
 	read( from_server, buffer, sizeof(buffer) );
-	printf( "received: %s\n", buffer );
+
+	//password
+	printf( "(from server) %s\n", buffer );
+
+
+	printf("%s\n", buffer);
+	if (strcmp(buffer, "User already exists in database, enter your password.") == 0){
+		//login
+		printf("Enter Your Password: ");
+		fgets( &buffer[1], sizeof(buffer) - 1, stdin );
+		printf("buffer: %s\n", buffer);
+		char *q = &buffer[0];
+		*q = '2'; //login statusNumber
+		char *p = strchr(buffer, '\n');
+		*p = 0;
+		write( to_server, buffer, sizeof(buffer) );
+
+	}else{
+		//register
+		printf("Enter New Password: ");
+		fgets( &buffer[1], sizeof(buffer) - 1, stdin );
+		printf("buffer: %s\n", buffer);
+		char *q = &buffer[0];
+		*q = '3'; //login statusNumber
+		char *p = strchr(buffer, '\n');
+		*p = 0;
+		write( to_server, buffer, sizeof(buffer) );
+	}
+
+	write( to_server, buffer, sizeof(buffer) );
+
 	//sends login, gets status back
 	//either tells user password is needed for normal login
 	//or that they will need to create account
