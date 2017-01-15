@@ -24,4 +24,6 @@ karolR & reoK -- 2017-01-15 4:02 PM
 karolR & reoK -- 2017-01-15 4:37 PM
 - finshed password checking function
 
+karolR -- 2017-01-15 5:10 PM
+- converted to networking from local piping using provided code
 
