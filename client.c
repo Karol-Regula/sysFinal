@@ -6,6 +6,7 @@
 #include "pipe_networking.h"
 
 int loginProcedure(int, int);
+void interpreter();
 
 //statusNumbers
 //1 - enter username (auth)
@@ -23,7 +24,9 @@ int main() {
 
 	while(1){
 		if(! loggedIn){
-			loginProcedure(to_server, from_server);
+			loggedIn = loginProcedure(to_server, from_server);
+		}else{
+			interpreter();
 		}
 		//do other stuff needed after login here
 	}
@@ -76,10 +79,20 @@ int loginProcedure(int to_server, int from_server){//working on this, will commu
 		write( to_server, buffer, sizeof(buffer) );
 	}
 
-	write( to_server, buffer, sizeof(buffer) );
+	read( from_server, buffer, sizeof(buffer) );
+	printf("buffer (from server): %s\n", buffer);
+	if (strcmp(buffer, "Login Successful") == 0){
+		printf("YOU ARE LOGGED IN!\n");
+		return 1;
+	}
+	return 0;
 
 	//sends login, gets status back
 	//either tells user password is needed for normal login
 	//or that they will need to create account
 	//stops running once logged in
+}
+
+void interpreter(){
+	printf("Welcome to Fnake\n");
 }

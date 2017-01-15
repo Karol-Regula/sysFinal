@@ -14,9 +14,14 @@ karolR -- 2017-01-13 11:44 AM
 - added .gitignore to ignore compiled files
 - server can read database (badly)
 
-karolR & reoK -- 2017-01-13 4:02 PM
+karolR & reoK -- 2017-01-15 4:02 PM
 - worked on login procedure
 - standardized communication format between server and client, allows for different modes (login / register / username input)
 - wrote database reading function
 - wrote function that checks if username exists
 - started work on password input
+
+karolR & reoK -- 2017-01-15 4:37 PM
+- finshed password checking function
+
+

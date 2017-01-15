@@ -32,7 +32,15 @@ int main() {
 			strcpy(buffer, authenticate(buffer));
 		}
 		if (statusNumber == 2){
-			checkPassword(buffer);
+			int out = checkPassword(buffer);
+			if (out){
+				printf("SERVERS\n");
+				strcpy(buffer, "Login Successful");
+			}else{
+				printf("SERVERF\n");
+				strcpy(buffer, "Login Failed");
+			}
+
 		}
 
 		printf("buffer (sending back to client): %s\n", buffer);
@@ -108,19 +116,15 @@ int checkPassword(char * s){
 		printf("here7\n");
 		printf("post buffer: %s\n", buffer);
 
-
-
-
-		char *q =  strchr(buffer, '\n');
-		*q = 0;
-
 		char *r =  strchr(buffer, ',');
-		temp = (int)(r - buffer);
+		printf("here9\n");
+		temp = (int)((r - buffer) + 1);
+		printf("temp: %d\n", temp);
 
-		printf("buffer (password only): %s\n", buffer);
+		printf("buffer (password only): %s\n", &buffer[temp]);
 		printf("from client: %s\n", &s[1]);
 		if (strcmp(&s[1], &buffer[temp]) == 0){
-			printf("user exists!\n");
+			printf("password matches!\n");
 			return 1;
 		}
 
@@ -130,7 +134,7 @@ int checkPassword(char * s){
 
 
 	}
-	printf("user does not exist!\n");
+	printf("password does not match!\n");
 	return 0; //for now
 }
 
