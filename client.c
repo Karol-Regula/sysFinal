@@ -46,8 +46,8 @@ int main(int argc, char *argv[]) {
 int loginProcedure(int sd){//working on this, will communicate with server several times
 	char buffer[MESSAGE_BUFFER_SIZE];
 
-	//login
-	printf("Enter Login: ");
+	//username
+	printf("Enter Username: ");
 	fgets( &buffer[1], sizeof(buffer) - 1, stdin );
 	printf("buffer: %s\n", buffer);
 	char *q = &buffer[0];
@@ -59,13 +59,14 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 	write( sd, buffer, sizeof(buffer) );
 	read( sd, buffer, sizeof(buffer) );
 
-	//password
+	
 	printf( "(from server) %s\n", buffer );
 
 
 	printf("%s\n", buffer);
+
+	//login
 	if (strcmp(buffer, "User already exists in database, enter your password.") == 0){
-		//login
 		printf("Enter Your Password: ");
 		fgets( &buffer[1], sizeof(buffer) - 1, stdin );
 		printf("buffer: %s\n", buffer);
@@ -75,15 +76,41 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 		*p = 0;
 		write( sd, buffer, sizeof(buffer) );
 
-	}else{
-		//register
-		printf("Enter New Password: ");
-		fgets( &buffer[1], sizeof(buffer) - 1, stdin );
-		printf("buffer: %s\n", buffer);
-		char *q = &buffer[0];
-		*q = '3'; //login statusNumber
-		char *p = strchr(buffer, '\n');
-		*p = 0;
+	}
+
+	//register
+	else{
+		char bufferB[MESSAGE_BUFFER_SIZE];
+		char username[MESSAGE_BUFFER_SIZE];
+		strcpy(username, &buffer[1]);
+		printf("Hello %s! Please enter a password to create your new account.\n", username);
+		int match = 0;
+		while (match == 0){
+			printf("Enter New Password: ");
+			fgets( &buffer[1], sizeof(buffer) - 1, stdin );
+			printf("bufferA: %s\n", buffer);
+			char *p = &buffer[0];
+			*p = '3';
+			*(strchr(buffer, '\n')) = 0;
+			printf("A again: %s\n", buffer);
+			printf("Re-Enter New Password: ");
+			fgets( &bufferB[1], sizeof(buffer) - 1, stdin );
+			printf("bufferB: %s\n", bufferB);
+			char *b = &bufferB[0];
+			*b = '3';
+			*(strchr(bufferB, '\n')) = 0;
+			printf("B again: %s\n", bufferB);
+
+			if (strcmp(buffer, bufferB) == 0){
+				printf("Passwords match!\n");
+				match = 1;
+			}
+			else printf("Passwords do not match!\n");
+		}
+		
+		strcat(buffer, "?");
+		strcat(buffer, username);
+		printf("final buffer: %s\n", buffer);
 		write( sd, buffer, sizeof(buffer) );
 	}
 
