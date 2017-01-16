@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 #include "pipe_networking.h"
 
@@ -12,6 +13,7 @@ int userExists(char *);
 char * authenticate(char *);
 int checkPassword(char *);
 void sub_server(int);
+void addAccount(char *);
 
 int main() {
 
@@ -47,19 +49,24 @@ void sub_server( int sd ) {
 		printf("statusNumber: %d\n", statusNumber);
 		printf("buffer: %s\n", buffer);
 		//HOW I SEE THIS: Client not only sends what user inputs but an extra bit, a number that indicates what the server must do with the input
-		if (statusNumber == 1){
+		if (statusNumber == 1){ //check if username exists
 			strcpy(buffer, authenticate(buffer));
 		}
-		if (statusNumber == 2){
+		if (statusNumber == 2){ //if u exists, check if password is correct
 			int out = checkPassword(buffer);
 			if (out){
-				printf("SERVERS\n");
+				printf("SERVER-S\n");
 				strcpy(buffer, "Login Successful");
 			}else{
-				printf("SERVERF\n");
-				strcpy(buffer, "Login Failed");
+				printf("SERVER-F\n");
+				strcpy(buffer, "Login Failed"); 
 			}
 
+		}
+		if (statusNumber == 3){
+			addAccount(buffer);
+			strcpy(buffer, "Login Successful");
+			//while(1) printf("register OK hahaha!\n");
 		}
 
 		printf("buffer (sending back to client): %s\n", buffer);
@@ -76,7 +83,7 @@ char * authenticate(char * s) { //handles all authentication cases
 	}
 	else{
 		//ask for password, password confirmation, and entry (username and password) if registration successful
-		return "New user, please enter password.";
+		return s;//"New user, please enter password.";
 	}
 }
 
@@ -96,11 +103,11 @@ int checkPassword(char * s){
 
 
 
-	printf("opening database:\n");
+	printf("opening database...\n");
 	fdData = open("database.csv", O_RDONLY, 0644);//remove creat manually for now
 	printf("size: %d\n", size);
 
-	printf("reading database:\n");
+	printf("reading database...\n");
 	read(fdData, buffer, size);
 	char *p = strchr(buffer, '\n');
 	*p = 0;
@@ -220,4 +227,25 @@ int userExists(char * s){
 	}
 	printf("user does not exist!\n");
 	return 0; //for now
+}
+
+void addAccount(char *s){
+	char* password = strsep(&s, "?");
+	char* username = s;
+	printf("username: %s\n", username);
+	printf("password: %s\n", password);
+	strcat(username, ",");
+	strcat(username, &password[1]);
+	strcat(username, "\n");
+	char* entry = username;
+	printf("entry: %s\n", entry);
+	printf("strlen(entry): %lu\n", strlen(entry));
+
+	printf("opening database...\n");
+	int fd = open("database.csv", O_RDWR | O_APPEND, 0777);
+	if (fd == -1) 
+		printf("error: %d - %s\n", errno, strerror(errno));
+	printf("adding entry to database...\n");
+	write(fd, entry, strlen(entry));
+	close(fd);
 }
