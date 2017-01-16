@@ -27,6 +27,12 @@ karolR & reoK -- 2017-01-15 4:37 PM
 karolR -- 2017-01-15 5:10 PM
 - converted to networking from local piping using provided code
 
+reoK -- 2017-01-15 7:30 PM
+- completed the registration component of the login process
+- when registration is successful, the server appends an entry to the database
+- basic login procedure is now complete
+
 karolR -- 2017-01-15 7:32 PM
 - started work on snake, made grid, made user interface
+
 
