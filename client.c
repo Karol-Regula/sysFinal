@@ -59,7 +59,7 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 	write( sd, buffer, sizeof(buffer) );
 	read( sd, buffer, sizeof(buffer) );
 
-	
+
 	printf( "(from server) %s\n", buffer );
 
 
@@ -107,7 +107,7 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 			}
 			else printf("Passwords do not match!\n");
 		}
-		
+
 		strcat(buffer, "?");
 		strcat(buffer, username);
 		printf("final buffer: %s\n", buffer);

@@ -9,73 +9,93 @@
 int main(){
   int height = 30;
   int width = 60;
-  char grid[height][width];
+  int grid[width][height];
   int Xc = 0;
   int Yc = 0;
   int input;
-  initGrid(height, width, grid);
-  printGrid(height, width, grid);
+  initGrid(width, height, grid);
+  printGrid(width, height, grid);
 
   while(1){
     input = getInput();
-    //printf("input: %c\n", input);
+    if (input != '\n'){
+      printf("input: %c\n", input);
+      printf("-----------------------------------\n");
 
-    if (input == 'w'){
-      Yc -= 1;
+      if (input == 'w'){
+        Yc -= 1;
+      }
+      if (input == 's'){
+        Yc += 1;
+      }
+      if (input == 'a'){
+        Xc -= 1;
+      }
+      if (input == 'd'){
+        Xc += 1;
+      }
+      editGrid(Xc, Yc, grid);
+      cycleGrid(width, height, grid);
+      printGrid(width, height, grid);
     }
-    if (input == 's'){
-      Yc += 1;
-    }
-    if (input == 'a'){
-      Xc -= 1;
-    }
-    if (input == 'd'){
-      Xc += 1;
-    }
-
-    editGrid(Xc, Yc, grid);
-    //cycleGrid(height, width, grid);
-    printGrid(height, width, grid);
   }
 
 
 }
 
-void initGrid(int height, int width, char grid[][Width]){
+void initGrid(int width, int height, int grid[][Height]){
   int x,y;
 
   for (y = 0; y < height; y++){
     for (x = 0; x < width; x++){
-      grid[y][x] = ' ';
+      grid[x][y] = 0;
     }
   }
 }
 
-void cycleGrid(int height, int width, char grid[][Width]){
+void cycleGrid(int width, int height, int grid[][Height]){
   int x,y;
-  int temp;
   for (y = 0; y < height; y++){
     for (x = 0; x < width; x++){
-      printf("%c\n", grid[x][y]);
-      //temp = atoi(grid[x][y]);
-      if (temp != 0){
-        //grid[x][y] = (temp - 1) + '0';
+      if (grid[x][y] != 0){
+        grid[x][y]--;
       }
     }
   }
 }
 
-void editGrid(int Xc, int Yc, char grid[][Width]){
-  grid[Yc][Xc] = '5';
+int checkCollisions(int Xc, int Yc, int grid[][Height]){
+  int height = Height;
+  int width = Width;
+  if (grid[Xc][Yc] != 0){
+    return 1;
+  }else{
+    return 0;
+  }
 }
 
-void printGrid(int height, int width, char grid[][Width]){
+void editGrid(int Xc, int Yc, int grid[][Height]){
+  if (checkCollisions(Xc, Yc, grid)){
+    printf("Collision Found");
+    printf("%d\n", grid[Xc][Yc]);
+    printf("%d, %d\n", Xc, Yc );
+    grid[Xc][Yc] = 6;
+  }else{
+    grid[Xc][Yc] = 6;
+  }
+}
+
+void printGrid(int width, int height, int grid[][Height]){
   int x,y;
 
-  printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+  printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
   for (y = 0; y < height; y++){
     for (x = 0; x < width; x++){
-      putchar(grid[y][x]);
+      if (grid[x][y] == 0){
+        putchar('-');
+      }else{
+        putchar('S');
+      }
     }
     putchar('\n');
   }
