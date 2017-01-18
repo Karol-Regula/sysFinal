@@ -46,7 +46,7 @@ int server_connect(int sd) {
   connection = accept( sd, (struct sockaddr *)&sock1, &sock1_len );
   error_check( connection, "server accept" );
 
-  printf("[server] connected to %s\n", inet_ntoa( sock1.sin_addr ) );
+  printf("[SERVER] connected to %s\n", inet_ntoa( sock1.sin_addr ) );
 
   return connection;
 }
@@ -63,7 +63,7 @@ int client_connect( char *host ) {
   inet_aton( host, &(sock.sin_addr));
   sock.sin_port = htons(9001);
 
-  printf("[client] connecting to: %s\n", host );
+  printf("[CLIENT] connecting to: %s\n", host );
   i = connect( sd, (struct sockaddr *)&sock, sizeof(sock) );
   error_check( i, "client connect");
 
