@@ -22,7 +22,7 @@ karolR & reoK -- 2017-01-15 4:02 PM
 - started work on password input
 
 karolR & reoK -- 2017-01-15 4:37 PM
-- finshed password checking function
+- finished password checking function
 
 karolR -- 2017-01-15 5:10 PM
 - converted to networking from local piping using provided code
@@ -37,8 +37,12 @@ karolR -- 2017-01-15 7:32 PM
 
 karolR -- 2017-01-17 11:49 AM
 - worked on snake game, fixed multiple issues
-- snake now appears and dissapears correctly
+- snake now appears and disappears correctly
 - added collision detection
 - wasd input is filtered and detected correctly
 
-
+karolR -- 2017-01-18 11:51 AM
+- added border to snake game
+- added "food" placing
+- added collision detection with food and snake growing upon eating food
+- added colors...
