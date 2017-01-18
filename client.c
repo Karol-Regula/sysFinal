@@ -89,12 +89,11 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 			*b = '3';
 			*(strchr(bufferB, '\n')) = 0;
 			//printf("(debug) bufferB again: %s\n", bufferB);
-
 			if (strcmp(buffer, bufferB) == 0){
 				printf("[CLIENT] Passwords match!\n");
 				match = 1;
 			}
-			else printf("[CLIENT] Passwords do not match!\n");
+			else printf("[CLIENT] Passwords " ANSI_COLOR_RED "do not match!\n" ANSI_COLOR_RESET);
 		}
 		strcat(buffer, "?");
 		strcat(buffer, username);
