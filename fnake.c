@@ -9,6 +9,7 @@
 
 int main(){
   int height = 30;
+  printf("echo -e \"\e[37m\e[41m\"\n");
   int width = 60;
   int grid[width][height];
   int Xc = 20;
@@ -21,6 +22,7 @@ int main(){
 
   while(1){
     input = getInput();
+    printf("echo -e \"\e[37m\e[41m\"\n");
     if (input != '\n'){
       printf("input: %c\n", input);
       printf("-----------------------------------\n");
@@ -38,13 +40,11 @@ int main(){
         Xc += 1;
       }
       snakeLength = editGrid(Xc, Yc, grid, snakeLength);
-      placeFood(grid);
+      //placeFood(grid);
       cycleGrid(width, height, grid);
       printGrid(width, height, grid);
     }
   }
-
-
 }
 
 void initGrid(int width, int height, int grid[][Height]){
@@ -82,6 +82,7 @@ int checkCollisions(int Xc, int Yc, int grid[][Height], int snakeLength){
   int width = Width;
   if (grid[Xc][Yc] == 1000){
     printf("Found food!.\n");
+    //incrementSnakeLength(grid); // correctly increments snakelength
     return snakeLength + 1;
   }
   if (grid[Xc][Yc] != 0){
@@ -120,6 +121,10 @@ void printGrid(int width, int height, int grid[][Height]){
         printf(ANSI_COLOR_RED);
         putchar('#');
         printf(ANSI_COLOR_RESET);
+      }else if (grid [x][y] == 1000){
+        printf(ANSI_COLOR_CYAN);
+        putchar('F');
+        printf(ANSI_COLOR_RESET);
       }else{
         printf(ANSI_COLOR_YELLOW);
         putchar('S');
@@ -149,3 +154,37 @@ char getInput(){
   printf("%c\n", out);
   return out;
 }
+
+
+
+
+
+
+
+
+
+//cleaner solution for getting single characters from the terminal.
+/*
+#include <termios.h>
+#include <unistd.h>
+#include <assert.h>
+#include <string.h>
+
+int getch(void) {
+      int c=0;
+
+      struct termios org_opts, new_opts;
+      int res=0;
+          //-----  store old settings -----------
+      res=tcgetattr(STDIN_FILENO, &org_opts);
+      assert(res==0);
+          //---- set new terminal parms --------
+      memcpy(&new_opts, &org_opts, sizeof(new_opts));
+      new_opts.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ECHOPRT | ECHOKE | ICRNL);
+      tcsetattr(STDIN_FILENO, TCSANOW, &new_opts);
+      c=getchar();
+          //------  restore old settings ---------
+      res=tcsetattr(STDIN_FILENO, TCSANOW, &org_opts);
+      assert(res==0);
+      return(c);
+*/

@@ -46,3 +46,8 @@ karolR -- 2017-01-18 11:51 AM
 - added "food" placing
 - added collision detection with food and snake growing upon eating food
 - added colors...
+
+karolR -- 2017-01-19 11:46 AM
+- figured out way to get input from terminal without pressing enter, commented outfor now, breaks terminal in the process
+- added special printing for food
+- working on better snake growth
