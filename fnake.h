@@ -6,4 +6,5 @@ void cycleGrid(int, int, int [][Height]);
 char getInput();
 void placeFood(int [][Height]);
 int editGrid(int, int, int [][Height], int);
-int checkCollisions(int, int, int[][Height], int);
+int checkCollisions(int, int, int [][Height], int);
+void incrementSnakeLength(int [][Height], int);

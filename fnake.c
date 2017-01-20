@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#include <termios.h>
+#include <assert.h>
+#include <string.h>
+
 #define Width 60
 #define Height 30
 
@@ -8,8 +13,28 @@
 #include "pipe_networking.h"
 
 int main(){
+
+  //printf ("\e[9;1t\n");
+  //printf ("\e[9;1t\n");
+  //printf ("\e[9;1t\n");
+  //printf ("\e[8;50;100t");
+  //terminal settings---------------------------
+  int c = 0;
+  struct termios org_opts, new_opts;
+  int res = 0;
+    //-----  stores old settings -----------
+  res=tcgetattr(STDIN_FILENO, &org_opts);
+  assert(res==0);
+      //---- sets new terminal parms --------
+  printf("Press a key.\n");
+  memcpy(&new_opts, &org_opts, sizeof(new_opts));
+  new_opts.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ECHOPRT | ECHOKE | ICRNL);
+  tcsetattr(STDIN_FILENO, TCSANOW, &new_opts);
+  c = getchar();
+
+
+
   int height = 30;
-  printf("echo -e \"\e[37m\e[41m\"\n");
   int width = 60;
   int grid[width][height];
   int Xc = 20;
@@ -22,7 +47,6 @@ int main(){
 
   while(1){
     input = getInput();
-    printf("echo -e \"\e[37m\e[41m\"\n");
     if (input != '\n'){
       printf("input: %c\n", input);
       printf("-----------------------------------\n");
@@ -40,7 +64,6 @@ int main(){
         Xc += 1;
       }
       snakeLength = editGrid(Xc, Yc, grid, snakeLength);
-      //placeFood(grid);
       cycleGrid(width, height, grid);
       printGrid(width, height, grid);
     }
@@ -53,7 +76,7 @@ void initGrid(int width, int height, int grid[][Height]){
   for (y = 0; y < height; y++){
     for (x = 0; x < width; x++){
       if (x == 0 || y == 0 || x == width - 1 || y == height - 1){
-        printf("Doing -1.\n");
+        //printf("Doing -1.\n");
         grid[x][y] = -1;
       }else{
         grid[x][y] = 0;
@@ -73,8 +96,10 @@ void cycleGrid(int width, int height, int grid[][Height]){
   }
 }
 
-void placeFood(int grid[][Height]){
-  grid[25][25] = 1000;
+void placeFood(int grid[][Height]){ //randomly places food
+  int randX = (rand()%(Width - 2)) + 1;
+  int randY = (rand()%(Height - 2)) + 1;
+  grid[randX][randY] = 1000;
 }
 
 int checkCollisions(int Xc, int Yc, int grid[][Height], int snakeLength){
@@ -82,7 +107,7 @@ int checkCollisions(int Xc, int Yc, int grid[][Height], int snakeLength){
   int width = Width;
   if (grid[Xc][Yc] == 1000){
     printf("Found food!.\n");
-    //incrementSnakeLength(grid); // correctly increments snakelength
+    placeFood(grid);
     return snakeLength + 1;
   }
   if (grid[Xc][Yc] != 0){
@@ -93,19 +118,33 @@ int checkCollisions(int Xc, int Yc, int grid[][Height], int snakeLength){
 }
 
 int editGrid(int Xc, int Yc, int grid[][Height], int snakeLength){
-  if (checkCollisions(Xc, Yc, grid, snakeLength) == -1){
+  int status = checkCollisions(Xc, Yc, grid, snakeLength);
+  int x, y;
+  if (status == -1){ //lost
     printf("Collision found, you lost! \n");
     printf("%d\n", grid[Xc][Yc]);
     printf("%d, %d\n", Xc, Yc );
     grid[Xc][Yc] = snakeLength;
     exit(0);
-  }else if (checkCollisions(Xc, Yc, grid, snakeLength) != 0){
-    snakeLength = checkCollisions(Xc, Yc, grid, snakeLength);
+  }else if (status != 0){ //found food
+    snakeLength = status;
+    grid[Xc][Yc] = snakeLength;
+    incrementSnakeLength(grid, snakeLength);
+    return snakeLength;
+  }else{ //normal movement
     grid[Xc][Yc] = snakeLength;
     return snakeLength;
-  }else{
-    grid[Xc][Yc] = snakeLength;
-    return snakeLength;
+  }
+}
+
+void incrementSnakeLength(int grid[][Height], int snakeLength){
+  int x, y;
+  for (y = 0; y < Height; y++){
+    for (x = 0; x < Width; x++){
+      if (grid[x][y] != 0 && grid[x][y] != -1 && grid[x][y] != 1000 && grid[x][y] != snakeLength){
+        grid[x][y]++;
+      }
+    }
   }
 }
 
@@ -159,16 +198,8 @@ char getInput(){
 
 
 
-
-
-
-
 //cleaner solution for getting single characters from the terminal.
 /*
-#include <termios.h>
-#include <unistd.h>
-#include <assert.h>
-#include <string.h>
 
 int getch(void) {
       int c=0;
