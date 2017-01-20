@@ -51,3 +51,8 @@ karolR -- 2017-01-19 11:46 AM
 - figured out way to get input from terminal without pressing enter, commented outfor now, breaks terminal in the process
 - added special printing for food
 - working on better snake growth
+
+karolR -- 2017-01-20 11:43 AM
+- implemented new way of obtaining input from terminal, still slightly breaks terminal
+- changed way how snake elongates after eating food
+- added random food spawning
