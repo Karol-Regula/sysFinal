@@ -66,11 +66,17 @@ void sub_server(int sd) {
 		  	printf("[SERVER] login successful!\n");
 			strcpy(buffer, "Login successful");
 		}
-		if (statusNumber == 4){
+		if (statusNumber == 4){ // join room
 			int *** data;
 			int sd;
 			sd = shmget(ftok("server.c", 174), 1048576, IPC_CREAT | IPC_EXCL |0664);
 			data = (int ***) shmat(sd, 0, 0);
+			
+		}if (statusNumber == 5){ // create room
+
+			
+		}if (statusNumber == 6){ // refresh room
+			
 		}
 		printf("(debug) sending to client: %s\n", buffer);
 		write(sd, buffer, sizeof(buffer));
