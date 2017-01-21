@@ -15,6 +15,7 @@ void interpreter();
 
 int main(int argc, char *argv[]){
 	printf("[CLIENT] booting...\n");
+	printf("[CLIENT] I am the best!\n");
 	char *host;
 	if (argc != 2){
 	 	printf("[CLIENT] host not specified, conneting to 127.0.0.1\n");
