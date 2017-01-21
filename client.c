@@ -17,6 +17,7 @@ void helpPrint();
 
 int main(int argc, char *argv[]){
 	printf("[CLIENT] booting...\n");
+	printf("[CLIENT] I am the best!\n");
 	char *host;
 	if (argc != 2){
 	 	printf("[CLIENT] host not specified, conneting to 127.0.0.1\n");
@@ -31,11 +32,7 @@ int main(int argc, char *argv[]){
 		if(!(loggedIn))
 			loggedIn = loginProcedure(sd);
 		else{
-<<<<<<< HEAD
-			interpreter(sd);
-=======
 			interpreter(username);
->>>>>>> 593859e65b53cdeaf6d1675e49072618eae74dcf
 			exit(1);
 		}
 	}
@@ -123,13 +120,6 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 	//stops running once logged in
 }
 
-<<<<<<< HEAD
-void interpreter(int sd){
-	char buffer[MESSAGE_BUFFER_SIZE];
-	printf("[CLIENT] Welcome to Fnake!\n");
-	read(sd, buffer, sizeof(buffer));
-	
-=======
 void welcome(){
 	system("clear");
 	printf("[CLIENT] " ANSI_COLOR_GREEN "Welcome to Fnake!" ANSI_COLOR_RESET "\n");
@@ -170,5 +160,4 @@ void interpreter(char username[]){
 			printf ("[CLIENT] Your command was not unterstood: %s\n", &buffer[1]);
 		}
 	}
->>>>>>> 593859e65b53cdeaf6d1675e49072618eae74dcf
 }
