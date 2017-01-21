@@ -6,7 +6,9 @@
 #include "pipe_networking.h"
 
 int loginProcedure(int);
-void interpreter();
+void interpreter(char []);
+void welcomePrint();
+void helpPrint();
 
 //statusNumbers
 //1 - enter username (auth)
@@ -29,7 +31,11 @@ int main(int argc, char *argv[]){
 		if(!(loggedIn))
 			loggedIn = loginProcedure(sd);
 		else{
+<<<<<<< HEAD
 			interpreter(sd);
+=======
+			interpreter(username);
+>>>>>>> 593859e65b53cdeaf6d1675e49072618eae74dcf
 			exit(1);
 		}
 	}
@@ -117,9 +123,52 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 	//stops running once logged in
 }
 
+<<<<<<< HEAD
 void interpreter(int sd){
 	char buffer[MESSAGE_BUFFER_SIZE];
 	printf("[CLIENT] Welcome to Fnake!\n");
 	read(sd, buffer, sizeof(buffer));
 	
+=======
+void welcome(){
+	system("clear");
+	printf("[CLIENT] " ANSI_COLOR_GREEN "Welcome to Fnake!" ANSI_COLOR_RESET "\n");
+	printf("             ____\n            / . .\\\n            \\  ---<\n             \\  /\n   __________/ /\n-=:___________/\n\n\n");
+	printf("[CLIENT] Enter a command using !<command>\n");
+  printf("[CLIENT] Type \"!help\" for a list of commands\n");
+}
+
+void helpPrint(){
+	//system("clear");
+	printf("[CLIENT] " ANSI_COLOR_GREEN "Fnake Help Utility!" ANSI_COLOR_RESET "\n");
+	printf("[CLIENT] Available commands: \n");
+	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!help" ANSI_COLOR_RESET " - opens the help utility\n");
+	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!exit" ANSI_COLOR_RESET " - exit Fnake \n");
+	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!join" ANSI_COLOR_RESET " - join a game of Fnake \n");
+	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!refresh" ANSI_COLOR_RESET " - refreshes list of rooms \n");
+	printf("---------------------------------------\n");
+	//printf("!game - joins game \n");
+}
+
+void interpreter(char username[]){
+	welcome();
+
+	char buffer[MESSAGE_BUFFER_SIZE];
+
+	while (1){
+		printf("[CLIENT] (%s)>> ", username);
+		fgets( &buffer[1], sizeof(buffer) - 1, stdin);
+		*(strchr(buffer, '\n')) = 0;
+		//printf("%d\n", strcmp(&buffer[1], "!help"));
+
+		if (strcmp(&buffer[1], "!help") == 0){
+			helpPrint();
+		}else if (strcmp(&buffer[1], "!exit") == 0){
+			printf("[CLIENT] " ANSI_COLOR_GREEN "Thank you for playing!" ANSI_COLOR_RESET "\n");
+			exit(0);
+		}else{
+			printf ("[CLIENT] Your command was not unterstood: %s\n", &buffer[1]);
+		}
+	}
+>>>>>>> 593859e65b53cdeaf6d1675e49072618eae74dcf
 }
