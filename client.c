@@ -15,7 +15,6 @@ void interpreter();
 
 int main(int argc, char *argv[]){
 	printf("[CLIENT] booting...\n");
-	printf("[CLIENT] I am the best!\n");
 	char *host;
 	if (argc != 2){
 	 	printf("[CLIENT] host not specified, conneting to 127.0.0.1\n");
@@ -30,7 +29,7 @@ int main(int argc, char *argv[]){
 		if(!(loggedIn))
 			loggedIn = loginProcedure(sd);
 		else{
-			interpreter();
+			interpreter(sd);
 			exit(1);
 		}
 	}
@@ -118,6 +117,9 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 	//stops running once logged in
 }
 
-void interpreter(){
+void interpreter(int sd){
+	char buffer[MESSAGE_BUFFER_SIZE];
 	printf("[CLIENT] Welcome to Fnake!\n");
+	read(sd, buffer, sizeof(buffer));
+	
 }
