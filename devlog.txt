@@ -56,3 +56,8 @@ karolR -- 2017-01-20 11:43 AM
 - implemented new way of obtaining input from terminal, still slightly breaks terminal
 - changed way how snake elongates after eating food
 - added random food spawning
+
+karolR -- 2017-01-21 16:14 PM
+- started work on interpreter function
+- added welcome and help printer functions
+- placeFood function no longer places food in snake

@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define Width 60
+#define Width 50
 #define Height 30
 
 #include "fnake.h"
@@ -34,11 +34,11 @@ int main(){
 
 
 
-  int height = 30;
-  int width = 60;
+  int height = Height;
+  int width = Width;
   int grid[width][height];
-  int Xc = 20;
-  int Yc = 20;
+  int Xc = 3;
+  int Yc = 3;
   int snakeLength = 6;
   int input;
   initGrid(width, height, grid);
@@ -97,8 +97,12 @@ void cycleGrid(int width, int height, int grid[][Height]){
 }
 
 void placeFood(int grid[][Height]){ //randomly places food
-  int randX = (rand()%(Width - 2)) + 1;
-  int randY = (rand()%(Height - 2)) + 1;
+  int randX = 0;
+  int randY = 0;
+  while (grid[randX][randY] != 0){
+    randX = (rand()%(Width - 2)) + 1;
+    randY = (rand()%(Height - 2)) + 1;
+  }
   grid[randX][randY] = 1000;
 }
 
