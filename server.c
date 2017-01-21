@@ -39,8 +39,8 @@ void sub_server(int sd) {
 	while(1){
 		read(sd, buffer, sizeof(buffer));
 		statusNumber = atoi(&buffer[0]);
-		//printf("(debug) status number: %d\n", statusNumber);
-		//printf("(debug) received buffer: %s\n", buffer);
+		printf("(debug) status number: %d\n", statusNumber);
+		printf("(debug) received buffer: %s\n", buffer);
 		//HOW I SEE THIS: Client not only sends what user inputs but an extra bit, a number that indicates what the server must do with the input
 		if (statusNumber == 1){ //check if username exists
 			strcpy(buffer, authenticate(buffer));
@@ -61,7 +61,7 @@ void sub_server(int sd) {
 		  	printf("[SERVER] login successful!\n");
 			strcpy(buffer, "Login successful");
 		}
-		//printf("(debug) sending to client: %s\n", buffer);
+		printf("(debug) sending to client: %s\n", buffer);
 		write(sd, buffer, sizeof(buffer));
 	}
 }
@@ -93,45 +93,45 @@ int checkPassword(char * s){
 	int temp = 0;
 
 	fdData = open("database.csv", O_RDONLY, 0644);//remove creat manually for now
-	//printf("(debug) size: %d\n", size);
+	printf("(debug) size: %d\n", size);
 
 	printf("[SERVER] reading database...\n");
 	read(fdData, buffer, size);
 	char *p = strchr(buffer, '\n');
 	*p = 0;
 	offset = (int)(p - buffer);
-	//printf("(debug) offset: %d\n", offset);
-	//printf("(debug) first buffer: %s\n", buffer);
-	//printf("(debug) sizeof(buffer) %lu\n", sizeof(buffer));
+	printf("(debug) offset: %d\n", offset);
+	printf("(debug) first buffer: %s\n", buffer);
+	printf("(debug) sizeof(buffer) %lu\n", sizeof(buffer));
 	soFar += (offset + 1);
 	size -= (offset + 1);
-	//printf("(debug) soFar: %d\n", soFar);
-	//printf("(debug) size: %d\n", size);
+	printf("(debug) soFar: %d\n", soFar);
+	printf("(debug) size: %d\n", size);
 	lseek(fdData, soFar, SEEK_SET);
 
 	while(size){
 		read(fdData, buffer, size);
 		buffer[size] = 0;
-		//printf("(debug) buffer: %s\n", buffer);
+		printf("(debug) buffer: %s\n", buffer);
 		char *p = strchr(buffer, '\n');
-		//printf("(debug) remaining database: %s\n", p);
+		printf("(debug) remaining database: %s\n", p);
 		*p = 0;
 		offset = (int)(p - buffer);
 		soFar += (offset + 1);
 		size -= (offset + 1);
-		//printf("(debug) post buffer: %s\n", buffer);
+		printf("(debug) post buffer: %s\n", buffer);
 		char *r =  strchr(buffer, ',');
 		temp = (int)((r - buffer) + 1);
-		//printf("(debug) temp: %d\n", temp);
-		//printf("(debug) buffer (password only): %s\n", &buffer[temp]);
-		//printf("(debug) from client: %s\n", &s[1]);
+		printf("(debug) temp: %d\n", temp);
+		printf("(debug) buffer (password only): %s\n", &buffer[temp]);
+		printf("(debug) from client: %s\n", &s[1]);
 		if (strcmp(&s[1], &buffer[temp]) == 0){
 			printf("[SERVER] saved password matches input -- success!\n");
 			return 1;
 		}
 
-		//printf("(debug) soFar: %d\n", soFar);
-		//printf("(debug) size: %d\n", size);
+		printf("(debug) soFar: %d\n", soFar);
+		printf("(debug) size: %d\n", size);
 		lseek(fdData, soFar, SEEK_SET);
 	}
 	printf("[SERVER] saved password does not match input -- failure!\n");
@@ -152,41 +152,41 @@ int userExists(char * s){
 	int offset;
 
 	fdData = open("database.csv", O_RDONLY, 0644);//remove creat manually for now
-	//printf("(debug) size: %d\n", size);
+	printf("(debug) size: %d\n", size);
 	printf("[SERVER] reading database...\n");
 	read(fdData, buffer, size);
 	char *p = strchr(buffer, '\n');
 	*p = 0;
 	offset = (int)(p - buffer);
-	//printf("(debug) offset: %d\n", offset);
-	//printf("(debug)first buffer: %s\n", buffer);
-	//printf("(debug) sizeof(buffer) %lu\n", sizeof(buffer));
+	printf("(debug) offset: %d\n", offset);
+	printf("(debug)first buffer: %s\n", buffer);
+	printf("(debug) sizeof(buffer) %lu\n", sizeof(buffer));
 	soFar += (offset + 1);
 	size -= (offset + 1);
-	//printf("(debug) soFar: %d\n", soFar);
-	//printf("(debug) size: %d\n", size);
+	printf("(debug) soFar: %d\n", soFar);
+	printf("(debug) size: %d\n", size);
 	lseek(fdData, soFar, SEEK_SET);
 
 	while(size){
 		read(fdData, buffer, size);
 		buffer[size] = 0;
-		//printf("(debug) buffer: %s\n", buffer);
+		printf("(debug) buffer: %s\n", buffer);
 		char *p = strchr(buffer, '\n');
 		*p = 0;
 		offset = (int)(p - buffer);
 		soFar += (offset + 1);
 		size -= (offset + 1);
-		//printf("(debug) post buffer: %s\n", buffer);
+		printf("(debug) post buffer: %s\n", buffer);
 		char *name =  strchr(buffer, ',');
 		*name = 0;
-		//printf("(debug) buffer/username: %s\n", buffer);
-		//printf("(debug) from client: %s\n", &s[1]);
+		printf("(debug) buffer/username: %s\n", buffer);
+		printf("(debug) from client: %s\n", &s[1]);
 		if (strcmp(&s[1], buffer) == 0){
 			printf("[SERVER] username located -- exists!\n");
 			return 1;
 		}
-		//printf("(debug) soFar: %d\n", soFar);
-		//printf("(debug) size: %d\n", size);
+		printf("(debug) soFar: %d\n", soFar);
+		printf("(debug) size: %d\n", size);
 		lseek(fdData, soFar, SEEK_SET);
 	}
 	printf("[SERVER] username not located -- does not exist!\n");
@@ -196,14 +196,14 @@ int userExists(char * s){
 void addAccount(char *s){
 	char* password = strsep(&s, "?");
 	char* username = s;
-	//printf("[SERVER] (debug) username: %s\n", username);
-	//printf("[SERVER] (debug) password: %s\n", password);
+	printf("[SERVER] (debug) username: %s\n", username);
+	printf("[SERVER] (debug) password: %s\n", password);
 	strcat(username, ",");
 	strcat(username, &password[1]);
 	strcat(username, "\n");
 	char* entry = username;
-	//printf("(debug) entry: %s\n", entry);
-	//printf("(debug) strlen(entry): %lu\n", strlen(entry));
+	printf("(debug) entry: %s\n", entry);
+	printf("(debug) strlen(entry): %lu\n", strlen(entry));
 
 	printf("[SERVER] Opening database...\n");
 	int fd = open("database.csv", O_RDWR | O_APPEND, 0777);

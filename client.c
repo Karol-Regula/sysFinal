@@ -17,6 +17,7 @@ void helpPrint();
 
 int main(int argc, char *argv[]){
 	printf("[CLIENT] booting...\n");
+	printf("[CLIENT] I am the best!\n");
 	char *host;
 	if (argc != 2){
 	 	printf("[CLIENT] host not specified, conneting to 127.0.0.1\n");
@@ -50,17 +51,17 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 	char *p = strchr(buffer, '\n');
 	*p = 0;
 
-	//printf("(debug) buffer string: %s\n", buffer);
+	printf("(debug) buffer string: %s\n", buffer);
 	write(sd, buffer, sizeof(buffer));
 	read(sd, buffer, sizeof(buffer));
-	//printf("(debug) Server says: %s\n", buffer);
+	printf("(debug) Server says: %s\n", buffer);
 
 	//login
 	if (strcmp(buffer, "user exists") == 0){
 		printf("[CLIENT] Welcome back! Please enter your username.\n");
 		printf("[CLIENT] Enter Your Password: ");
 		fgets( &buffer[1], sizeof(buffer) - 1, stdin );
-		//printf("buffer: %s\n", buffer);
+		printf("buffer: %s\n", buffer);
 		char *q = &buffer[0];
 		*q = '2'; //login statusNumber
 		char *p = strchr(buffer, '\n');
@@ -79,18 +80,18 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 		while (match == 0){
 			printf("[CLIENT] Enter New Password: ");
 			fgets( &buffer[1], sizeof(buffer) - 1, stdin );
-			//printf("(debug) bufferA: %s\n", buffer);
+			printf("(debug) bufferA: %s\n", buffer);
 			char *p = &buffer[0];
 			*p = '3';
 			*(strchr(buffer, '\n')) = 0;
-			//printf("(debug) bufferA again: %s\n", buffer);
+			printf("(debug) bufferA again: %s\n", buffer);
 			printf("[CLIENT] Re-Enter New Password: ");
 			fgets( &bufferB[1], sizeof(buffer) - 1, stdin );
-			//printf("(debug) bufferB: %s\n", bufferB);
+			printf("(debug) bufferB: %s\n", bufferB);
 			char *b = &bufferB[0];
 			*b = '3';
 			*(strchr(bufferB, '\n')) = 0;
-			//printf("(debug) bufferB again: %s\n", bufferB);
+			printf("(debug) bufferB again: %s\n", bufferB);
 			if (strcmp(buffer, bufferB) == 0){
 				printf("[CLIENT] Passwords match!\n");
 				match = 1;
@@ -99,12 +100,12 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 		}
 		strcat(buffer, "?");
 		strcat(buffer, username);
-		//printf("(debug) final buffer: %s\n", buffer);
+		printf("(debug) buffer to send to server: %s\n", buffer);
 		write(sd, buffer, sizeof(buffer));
 	}
 
 	read(sd, buffer, sizeof(buffer));
-	//printf("buffer (from server): %s\n", buffer);
+	printf("buffer (from server): %s\n", buffer);
 	if (strcmp(buffer, "Login successful") == 0){
 		printf("[CLIENT] You are now " ANSI_COLOR_GREEN "logged in!" ANSI_COLOR_RESET "\n");
 		return 1;
