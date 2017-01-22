@@ -5,12 +5,12 @@
 
 #include "pipe_networking.h"
 
-int loginProcedure(int);
-void interpreter(char[], int);
+int loginProcedure(int, char*);
+void interpreter(int, char*);
 char** parseHelper(char*, char*);
 void welcomePrint();
 void helpPrint();
-void lobbyPrint(char[]);
+void lobbyPrint(char*);
 
 //statusNumbers
 //1 - enter username (auth)
@@ -32,9 +32,9 @@ int main(int argc, char *argv[]){
 	char* username;
 	while(1){
 		if(!(loggedIn))
-			loggedIn = loginProcedure(sd);
+			loggedIn = loginProcedure(sd, username);
 		else{
-			interpreter(username, sd);
+			interpreter(sd, username);
 			exit(1);
 		}
 	}
@@ -42,12 +42,13 @@ int main(int argc, char *argv[]){
 }
 
 
-int loginProcedure(int sd){//working on this, will communicate with server several times
+int loginProcedure(int sd, char* username){//working on this, will communicate with server several times
 	char buffer[MESSAGE_BUFFER_SIZE];
 
 	//username
 	printf("[CLIENT] Enter Username: ");
 	fgets( &buffer[1], sizeof(buffer) - 1, stdin );
+	username = buffer;
 	char *q = &buffer[0];
 	*q = '1'; //login statusNumber
 	char *p = strchr(buffer, '\n');
@@ -156,7 +157,7 @@ void helpPrint(){
 	//printf("!game - joins game \n");
 }
 
-void lobbyPrint(char data[]){
+void lobbyPrint(char* data){
 	char** roomAll = (char**)malloc(sizeof(char**) * 100);
 	roomAll = parseHelper(data, "?");
 	int roomNum = 0;
@@ -177,7 +178,7 @@ void lobbyPrint(char data[]){
 	}
 }
 
-void interpreter(char username[], int sd){
+void interpreter(int sd, char* username){
 	welcome();
 	char buffer[MESSAGE_BUFFER_SIZE];
 	while (1){
@@ -202,15 +203,21 @@ void interpreter(char username[], int sd){
 		else if (strcmp(&buffer[1], "!join") == 0){
 			char *statusNum = &buffer[0];
 			*statusNum = '4';
+			strcat(buffer, username);
 			write(sd, buffer, sizeof(buffer));
+			read(sd, buffer, sizeof(buffer));
+			//printf if joined or not
 		}
 		else if (strcmp(&buffer[1], "!create") == 0){
 			char *statusNum = &buffer[0];
 			*statusNum = '5';
+			strcat(buffer, username);
 			write(sd, buffer, sizeof(buffer));
+			read(sd, buffer, sizeof(buffer));
+			//printf whether room was created or not
 		}
 		else{
-			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW"!help"ANSI_COLOR_RESET"for help.\n");
+			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW"!help"ANSI_COLOR_RESET"to display help menu.\n");
 		}
 	}
 }

@@ -15,21 +15,22 @@
 
 
 struct rooms{
-	char roomName;
+	char * roomName;
 	int size;
 	int ready;
-	char userNames[][100];
+	char ** userNames;
 } rooms;
 
 
 void process(char *);
 int userExists(char *);
-char* authenticate(char *);
+char * authenticate(char *);
 int checkPassword(char *);
 void sub_server(int);
 void addAccount(char *);
 char * addToRoom(char *, struct rooms *);
 char * roomToString(struct rooms *, int);
+char * roomNametoString(struct rooms *);
 
 int main() {
 	printf("[SERVER] booting...\n");
@@ -91,7 +92,9 @@ void sub_server(int sd) {
 			//function that will create new room in shared memory
 			
 		}if (statusNumber == 6){ // refresh room
-			//function that will send the list of rooms
+			char * temp;
+			temp = roomNameToString(data);
+			strcpy (buffer, temp);
 		}
 		printf("(debug) sending to client: %s\n", buffer);
 		write(sd, buffer, sizeof(buffer));
@@ -118,7 +121,7 @@ char * addToRoom(char * buffer, struct rooms * data){
 	strcpy(roomName, temp);
 	
 	while (data[x].size){
-		if (! strcmp(roomName, &data[x].roomName) && data[x].size && data[x].size != data[x].ready){
+		if (! strcmp(roomName, data[x].roomName) && data[x].size && data[x].size != data[x].ready){
 			//room found and can join
 			y = 0;
 			while(data[x].userNames[y]){
@@ -149,16 +152,29 @@ char * roomToString(struct rooms * data, int x){
 	char userName[100];
 	strcpy(userName, data[x].userNames[0]);
 	char roomName[100];
-	strcpy(roomName, &data[x].roomName);
-	
+	strcpy(roomName, data[x].roomName);
 	//clean this up, test version for now, only returns first username
-	
-	
 	return out;
 }
 
+char * roomNameToString(struct rooms * data){
+	char * out;
+	int len = 0;
+	int x = 0;
+	while (data[x].roomName){
+		strcpy(out, "hahah");
+		//out[len] = *data[x].roomName;
+		len += strlen(data[x].roomName);
+		strcpy(&out[len + 1], " ");
+		len++;
+		x++;
+	}
+	return out;
+	
+}
 
-char* authenticate(char * s) { //handles all authentication cases
+
+char * authenticate(char * s) { //handles all authentication cases
 	//printf("[SERVER] authenticating username...\n");
 	if (userExists(s)){
 		//prompt for password
