@@ -66,10 +66,10 @@ void sub_server(int sd) {
 		statusNumber = atoi(&buffer[0]);
 		printf("(debug) status number: %d\n", statusNumber);
 		printf("(debug) received buffer: %s\n", buffer);
-		//HOW I SEE THIS: Client not only sends what user inputs but an extra bit, a number that indicates what the server must do with the input
 		if (statusNumber == 1){ //check if username exists
 			strcpy(buffer, authenticate(buffer));
 		}
+		printf("(debug) status number: %d\n", statusNumber);
 		if (statusNumber == 2){ //if u exists, check if password is correct
 			int out = checkPassword(buffer);
 			if (out){
@@ -87,9 +87,11 @@ void sub_server(int sd) {
 			strcpy(buffer, "Login successful");
 		}
 		if (statusNumber == 4){ // join room
-			char * temp = joinRoom(buffer, data);
+			printf("statusnumber = 4 activated\n");
+			char* temp = joinRoom(buffer, data);
+			printf("line 92 temp is: \n");
 			strcpy(buffer, temp);
-			
+			printf("status number 4 buffer: %s\n", buffer);
 		}if (statusNumber == 5){ // create room
 			char * temp = createRoom(buffer, data);
 			strcpy(buffer, temp);
@@ -112,36 +114,47 @@ char * joinRoom(char * buffer, struct rooms * data){
 	char * temp;
 	char userName[100];
 	char roomName[100];
-
+	printf("here1\n");
 	//get relevant data from buffer sent by client
+	printf("here1\n");
 	temp = strtok(buffer, " ");
+	printf("here1\n");
 	strcpy(userName, temp);
+	printf("here1\n");
 	char *p = strrchr(buffer, ' ');
-		*p = 0;
-	
+	printf("here1\n");
+	//*p = 0;
+	printf("here2\n");
 	temp = strtok(buffer, " ");
+	printf("here2\n");
 	strcpy(roomName, temp);
-	
+	printf("here2\n");
 	while (data[x].size){
+		printf("here2\n");
 		if (! strcmp(roomName, data[x].roomName) && data[x].size && data[x].size != data[x].ready){
 			//room found and can join
 			y = 0;
+			printf("here2\n");
 			while(data[x].userNames[y]){
 				y++;
 			}
 			if (y == MAX - 1 || (y == data[x].ready)){
 				out = "full/in";
+				printf("here3\n");
 				return out;
 			}else{
+				printf("here2\n");
 				strcpy(data[x].userNames[y], userName);
 				//data[x].userNames[y] = userName;
 				data[x].size++;
 				out = roomToString(data, x); //returns all room data in the form of a string
+				printf("here4\n");
 				return out;
 			}
 		}
 		x++;
 	}
+	printf("here5\n");
 	out = "DNE";
 	return out;
 }
@@ -179,6 +192,7 @@ char * createRoom(char * buffer, struct rooms * data){
 
 char * roomToString(struct rooms * data, int x){
 	char * out;
+	int len = 0;
 	
 	int size = data[x].size;
 	int ready = data[x].ready;
@@ -186,7 +200,6 @@ char * roomToString(struct rooms * data, int x){
 	strcpy(userName, data[x].userNames[0]);
 	char roomName[100];
 	strcpy(roomName, data[x].roomName);
-	
 	
 	//clean this up, test version for now, only returns first username
 	return out;

@@ -20,7 +20,6 @@ void joinedPrint(char*);
 
 int main(int argc, char *argv[]){
 	printf("[CLIENT] booting...\n");
-	printf("[CLIENT] I am the best!\n");
 	char *host;
 	if (argc != 2){
 	 	printf("[CLIENT] host not specified, conneting to 127.0.0.1\n");
@@ -34,7 +33,6 @@ int main(int argc, char *argv[]){
 	while(1){
 		if(!(loggedIn)){
 			loggedIn = loginProcedure(sd, &username);
-			printf("username: %s\n", username);
 		}
 		else{
 			interpreter(sd, username);
@@ -47,11 +45,14 @@ int main(int argc, char *argv[]){
 
 int loginProcedure(int sd, char** username){//working on this, will communicate with server several times
 	char buffer[MESSAGE_BUFFER_SIZE];
+	char bufferUsername[MESSAGE_BUFFER_SIZE];
 
 	//username
 	printf("[CLIENT] Enter Username: ");
 	fgets( &buffer[1], sizeof(buffer) - 1, stdin );
-	*username = &buffer[1];
+	strcpy(bufferUsername, &buffer[1]);
+	*username = bufferUsername;
+	*(strchr(bufferUsername, '\n')) = 0;
 	char *q = &buffer[0];
 	*q = '1'; //login statusNumber
 	char *p = strchr(buffer, '\n');
@@ -73,16 +74,14 @@ int loginProcedure(int sd, char** username){//working on this, will communicate 
 		char *p = strchr(buffer, '\n');
 		*p = 0;
 		write(sd, buffer, sizeof(buffer));
-
 	}
 
 	//register
 	else{
 		char bufferB[MESSAGE_BUFFER_SIZE];
-		char username[MESSAGE_BUFFER_SIZE];
-		printf("buffer at this time: %s\n", buffer);
-		strcpy(username, &buffer[1]);
-		printf("[CLIENT] Hello " ANSI_COLOR_CYAN "%s" ANSI_COLOR_RESET "! Please enter a password to create your new account.\n", username);
+		char userBuffer[MESSAGE_BUFFER_SIZE];
+		strcpy(userBuffer, &buffer[1]);
+		printf("[CLIENT] Hello " ANSI_COLOR_CYAN "%s" ANSI_COLOR_RESET "! Please enter a password to create your new account.\n", userBuffer);
 		int match = 0;
 		while (match == 0){
 			printf("[CLIENT] Enter New Password: ");
@@ -106,7 +105,7 @@ int loginProcedure(int sd, char** username){//working on this, will communicate 
 			else printf("[CLIENT] Passwords " ANSI_COLOR_RED "do not match!\n" ANSI_COLOR_RESET);
 		}
 		strcat(buffer, "?");
-		strcat(buffer, username);
+		strcat(buffer, userBuffer);
 		printf("(debug) buffer to send to server: %s\n", buffer);
 		write(sd, buffer, sizeof(buffer));
 	}
@@ -142,7 +141,7 @@ char** parseHelper(char* input, char* delim){
 }
 
 void welcome(){
-	system("clear");
+	//system("clear");
 	printf("[CLIENT] " ANSI_COLOR_GREEN "Welcome to Fnake!" ANSI_COLOR_RESET "\n");
 	printf("             ____\n            / . .\\\n            \\  ---<\n             \\  /\n   __________/ /\n-=:___________/\n\n\n");
 	printf("[CLIENT] Enter a command using !<command>\n");
@@ -189,7 +188,7 @@ void joinedPrint(char* data){
 	room = parseHelper(data, " ");
 	printf("You have joined "ANSI_COLOR_CYAN"%s"ANSI_COLOR_RESET" !\n", room[0]);
 	int pos = 3;
-	printf("Users currently in the room: ");
+	printf("Users currently in the room:\n");
 	while(room[pos]){
 	 printf("\t%s\n", room[pos]);
 	 pos++;
@@ -222,9 +221,12 @@ void interpreter(int sd, char* username){
 		else if (strncmp(&buffer[1], "!join", 5) == 0){
 			char *statusNum = &buffer[0];
 			*statusNum = '4';
+			strcat(buffer, " ");   
 			strcat(buffer, username);
+			printf("command to send (join): %s\n", buffer);
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
+			printf("returned buffer for !join: %s\n", buffer);
 			if (strcmp(buffer, "DNE") == 0)
 				printf("[CLIENT] Room does not exist, please try a different room. Enter "ANSI_COLOR_YELLOW"!refresh"ANSI_COLOR_RESET" for a list of rooms.\n");
 			else if (strcmp(buffer, "full/in") == 0)
@@ -243,7 +245,7 @@ void interpreter(int sd, char* username){
 			//printf whether room was created or not
 		}
 		else{
-			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW" !help"ANSI_COLOR_RESET"to display help menu.\n");
+			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW" !help"ANSI_COLOR_RESET" to display help menu.\n");
 		}
 	}
 }
