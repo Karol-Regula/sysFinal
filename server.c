@@ -28,9 +28,10 @@ char * authenticate(char *);
 int checkPassword(char *);
 void sub_server(int);
 void addAccount(char *);
-char * addToRoom(char *, struct rooms *);
+char * joinRoom(char *, struct rooms *);
+char * createRoom(char *, struct rooms *);
 char * roomToString(struct rooms *, int);
-char * roomNametoString(struct rooms *);
+char * roomsToString(struct rooms *);
 
 int main() {
 	printf("[SERVER] booting...\n");
@@ -86,22 +87,23 @@ void sub_server(int sd) {
 			strcpy(buffer, "Login successful");
 		}
 		if (statusNumber == 4){ // join room
-			addToRoom(buffer, data);
+			char * temp = joinRoom(buffer, data);
+			strcpy(buffer, temp);
 			
 		}if (statusNumber == 5){ // create room
-			//function that will create new room in shared memory
+			char * temp = createRoom(buffer, data);
+			strcpy(buffer, temp);
 			
 		}if (statusNumber == 6){ // refresh room
-			char * temp;
-			temp = roomNameToString(data);
-			strcpy (buffer, temp);
+			char* temp = roomsToString(data);
+			strcpy(buffer, temp);
 		}
 		printf("(debug) sending to client: %s\n", buffer);
 		write(sd, buffer, sizeof(buffer));
 	}
 }
 
-char * addToRoom(char * buffer, struct rooms * data){
+char * joinRoom(char * buffer, struct rooms * data){
 	//buffer = "4!join roomName userName"
 	char * out;
 	
@@ -127,8 +129,8 @@ char * addToRoom(char * buffer, struct rooms * data){
 			while(data[x].userNames[y]){
 				y++;
 			}
-			if (y == 3){
-				out = "Room is full, please try another room.";
+			if (y == MAX - 1 || (y == data[x].ready)){
+				out = "full/in";
 				return out;
 			}else{
 				strcpy(data[x].userNames[y], userName);
@@ -140,7 +142,38 @@ char * addToRoom(char * buffer, struct rooms * data){
 		}
 		x++;
 	}
-	out = "Room does not exist, please try a different room.";
+	out = "DNE";
+	return out;
+}
+
+char * createRoom(char * buffer, struct rooms * data){
+	//buffer = "4!create roomName userName"
+	char * out;
+	
+	int x = 0;
+	int y = 0;
+	char * temp;
+	char userName[100];
+	char roomName[100];
+
+	//get relevant data from buffer sent by client
+	temp = strtok(buffer, " ");
+	strcpy(userName, temp);
+	char *p = strrchr(buffer, ' ');
+		*p = 0;
+	
+	temp = strtok(buffer, " ");
+	strcpy(roomName, temp);
+	
+	while (data[x].size){
+		x++;
+	}
+	data[x].userNames[0] = userName;
+	data[x].roomName = roomName;
+	data[x].size = 1;
+	data[x].ready = 0;
+	
+	out = "Room created successfully.";
 	return out;
 }
 
@@ -153,11 +186,13 @@ char * roomToString(struct rooms * data, int x){
 	strcpy(userName, data[x].userNames[0]);
 	char roomName[100];
 	strcpy(roomName, data[x].roomName);
+	
+	
 	//clean this up, test version for now, only returns first username
 	return out;
 }
 
-char * roomNameToString(struct rooms * data){
+char * roomsToString(struct rooms * data){
 	char * out;
 	int len = 0;
 	int x = 0;

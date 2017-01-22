@@ -5,12 +5,13 @@
 
 #include "pipe_networking.h"
 
-int loginProcedure(int, char*);
+int loginProcedure(int, char**);
 void interpreter(int, char*);
 char** parseHelper(char*, char*);
 void welcomePrint();
 void helpPrint();
 void lobbyPrint(char*);
+void joinedPrint(char*);
 
 //statusNumbers
 //1 - enter username (auth)
@@ -31,8 +32,10 @@ int main(int argc, char *argv[]){
 	int loggedIn = 0;
 	char* username;
 	while(1){
-		if(!(loggedIn))
-			loggedIn = loginProcedure(sd, username);
+		if(!(loggedIn)){
+			loggedIn = loginProcedure(sd, &username);
+			printf("username: %s\n", username);
+		}
 		else{
 			interpreter(sd, username);
 			exit(1);
@@ -42,13 +45,13 @@ int main(int argc, char *argv[]){
 }
 
 
-int loginProcedure(int sd, char* username){//working on this, will communicate with server several times
+int loginProcedure(int sd, char** username){//working on this, will communicate with server several times
 	char buffer[MESSAGE_BUFFER_SIZE];
 
 	//username
 	printf("[CLIENT] Enter Username: ");
 	fgets( &buffer[1], sizeof(buffer) - 1, stdin );
-	username = buffer;
+	*username = &buffer[1];
 	char *q = &buffer[0];
 	*q = '1'; //login statusNumber
 	char *p = strchr(buffer, '\n');
@@ -77,6 +80,7 @@ int loginProcedure(int sd, char* username){//working on this, will communicate w
 	else{
 		char bufferB[MESSAGE_BUFFER_SIZE];
 		char username[MESSAGE_BUFFER_SIZE];
+		printf("buffer at this time: %s\n", buffer);
 		strcpy(username, &buffer[1]);
 		printf("[CLIENT] Hello " ANSI_COLOR_CYAN "%s" ANSI_COLOR_RESET "! Please enter a password to create your new account.\n", username);
 		int match = 0;
@@ -161,9 +165,9 @@ void lobbyPrint(char* data){
 	char** roomAll = (char**)malloc(sizeof(char**) * 100);
 	roomAll = parseHelper(data, "?");
 	int roomNum = 0;
+	char** room = (char**)malloc(sizeof(char**) * 100);
 	while (roomAll[roomNum]){
 		int pNum = 0; //number of users in a room
-		char** room = (char**)malloc(sizeof(char**) * 100);
 		room = parseHelper(roomAll[roomNum], " ");
 		while (room[pNum]) pNum++;
 		pNum -= 3;
@@ -176,13 +180,28 @@ void lobbyPrint(char* data){
 			printf(ANSI_COLOR_GREEN"%s "ANSI_COLOR_RESET"(%d in, %s ready, %s max)\n", room[0], pNum, room[2], room[1]);
 		roomNum++;
 	}
+	free(roomAll);
+	free(room);
+}
+
+void joinedPrint(char* data){
+	char** room = (char**)malloc(sizeof(char**) * 100);
+	room = parseHelper(data, " ");
+	printf("You have joined "ANSI_COLOR_CYAN"%s"ANSI_COLOR_RESET" !\n", room[0]);
+	int pos = 3;
+	printf("Users currently in the room: ");
+	while(room[pos]){
+	 printf("\t%s\n", room[pos]);
+	 pos++;
+	}
+	free(room);
 }
 
 void interpreter(int sd, char* username){
 	welcome();
 	char buffer[MESSAGE_BUFFER_SIZE];
 	while (1){
-		printf("[CLIENT] (%s)>> ", username);
+		printf("[CLIENT] @ (%s): ", username);
 		fgets( &buffer[1], sizeof(buffer) - 1, stdin);
 		*(strchr(buffer, '\n')) = 0;
 		//printf("%d\n", strcmp(&buffer[1], "!help"));
@@ -200,24 +219,31 @@ void interpreter(int sd, char* username){
 			//read(sd, buffer, sizeof(buffer));
 			//lobbyPrint(buffer);
 		}
-		else if (strcmp(&buffer[1], "!join") == 0){
+		else if (strncmp(&buffer[1], "!join", 5) == 0){
 			char *statusNum = &buffer[0];
 			*statusNum = '4';
 			strcat(buffer, username);
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
-			//printf if joined or not
+			if (strcmp(buffer, "DNE") == 0)
+				printf("[CLIENT] Room does not exist, please try a different room. Enter "ANSI_COLOR_YELLOW"!refresh"ANSI_COLOR_RESET" for a list of rooms.\n");
+			else if (strcmp(buffer, "full/in") == 0)
+				printf("[CLIENT] Room is either full or in-session. Please try another room.\n");
+			else{
+				joinedPrint(buffer);
+			}
 		}
-		else if (strcmp(&buffer[1], "!create") == 0){
+		else if (strncmp(&buffer[1], "!create", 6) == 0){
 			char *statusNum = &buffer[0];
 			*statusNum = '5';
 			strcat(buffer, username);
+			printf("HERe");
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
 			//printf whether room was created or not
 		}
 		else{
-			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW"!help"ANSI_COLOR_RESET"to display help menu.\n");
+			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW" !help"ANSI_COLOR_RESET"to display help menu.\n");
 		}
 	}
 }
