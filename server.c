@@ -94,7 +94,7 @@ void sub_server(int sd) {
 			printf("status number 4 buffer: %s\n", buffer);
 		}if (statusNumber == 5){ // create room
 			char * temp = createRoom(buffer, data);
-			printf("Line 97 temp: %s", temp);
+			printf("Line 97 temp: %s\n", temp);
 			strcpy(buffer, temp);
 			
 		}if (statusNumber == 6){ // refresh room
@@ -178,7 +178,7 @@ char * createRoom(char* buffer, struct rooms * data){
 	printf("cere1\n");
 	char *p = strrchr(buffer, ' ');
 	printf("cere1\n");
-		*p = 0;
+	//*p = 0;
 	printf("cere1\n");
 	
 	temp = strtok(buffer, " ");
@@ -188,7 +188,7 @@ char * createRoom(char* buffer, struct rooms * data){
 	while (data[x].size){
 		x++;
 	}
-	printf("cere1\n");
+	printf("cere2\n");
 	data[x].userNames[0] = userName;
 	data[x].roomName = roomName;
 	data[x].size = 1;
@@ -196,7 +196,7 @@ char * createRoom(char* buffer, struct rooms * data){
 	printf("cere1\n");
 	
 	out = "success";
-	printf("cere1\n");
+	printf("cere3\n");
 	return out;
 }
 
