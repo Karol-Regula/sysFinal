@@ -57,7 +57,7 @@ void sub_server(int sd) {
 	
 	struct rooms * data;
 	int sdd;
-	sdd = shmget(ftok("server.c", 174), 1048576, IPC_CREAT | IPC_EXCL | 0664);
+	sdd = shmget(ftok("server.c", 174), 1048576, IPC_CREAT | 0664);
 	data = (struct rooms *) shmat(sdd, 0, 0);
   	
   	
@@ -94,6 +94,7 @@ void sub_server(int sd) {
 			printf("status number 4 buffer: %s\n", buffer);
 		}if (statusNumber == 5){ // create room
 			char * temp = createRoom(buffer, data);
+			printf("Line 97 temp: %s", temp);
 			strcpy(buffer, temp);
 			
 		}if (statusNumber == 6){ // refresh room
@@ -159,34 +160,43 @@ char * joinRoom(char * buffer, struct rooms * data){
 	return out;
 }
 
-char * createRoom(char * buffer, struct rooms * data){
-	//buffer = "4!create roomName userName"
-	char * out;
-	
+char * createRoom(char* buffer, struct rooms * data){
+	//buffer = "5!create roomName userName"
+	char* out;
+	printf("cere1\n");
 	int x = 0;
 	int y = 0;
-	char * temp;
+	char* temp;
 	char userName[100];
 	char roomName[100];
+	printf("cere1\n");
 
 	//get relevant data from buffer sent by client
 	temp = strtok(buffer, " ");
+	printf("cere1\n");
 	strcpy(userName, temp);
+	printf("cere1\n");
 	char *p = strrchr(buffer, ' ');
+	printf("cere1\n");
 		*p = 0;
+	printf("cere1\n");
 	
 	temp = strtok(buffer, " ");
 	strcpy(roomName, temp);
+	printf("cere1\n");
 	
 	while (data[x].size){
 		x++;
 	}
+	printf("cere1\n");
 	data[x].userNames[0] = userName;
 	data[x].roomName = roomName;
 	data[x].size = 1;
 	data[x].ready = 0;
+	printf("cere1\n");
 	
-	out = "Room created successfully.";
+	out = "success";
+	printf("cere1\n");
 	return out;
 }
 
@@ -201,7 +211,14 @@ char * roomToString(struct rooms * data, int x){
 	char roomName[100];
 	strcpy(roomName, data[x].roomName);
 	
-	//clean this up, test version for now, only returns first username
+	out[len] = *roomName;
+	len += strlen(roomName);
+	out[len] = ' ';
+	len++;
+	out[len + 1] = size;
+	out[len + 2] = ' ';
+	
+	
 	return out;
 }
 

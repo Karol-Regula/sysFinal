@@ -223,10 +223,9 @@ void interpreter(int sd, char* username){
 			*statusNum = '4';
 			strcat(buffer, " ");   
 			strcat(buffer, username);
-			printf("command to send (join): %s\n", buffer);
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
-			printf("returned buffer for !join: %s\n", buffer);
+			printf("(debug) returned buffer for !join: %s\n", buffer);
 			if (strcmp(buffer, "DNE") == 0)
 				printf("[CLIENT] Room does not exist, please try a different room. Enter "ANSI_COLOR_YELLOW"!refresh"ANSI_COLOR_RESET" for a list of rooms.\n");
 			else if (strcmp(buffer, "full/in") == 0)
@@ -238,11 +237,14 @@ void interpreter(int sd, char* username){
 		else if (strncmp(&buffer[1], "!create", 6) == 0){
 			char *statusNum = &buffer[0];
 			*statusNum = '5';
+			strcat(buffer, " ");
 			strcat(buffer, username);
-			printf("HERe");
+			printf("(debug) sending buffer for !create: %s\n", buffer);
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
-			//printf whether room was created or not
+			printf("(debug) returned buffer for !create: %s\n", buffer);
+			if (strcmp(buffer, "success") == 0)
+				printf("[CLIENT] Room created successfully!\n");
 		}
 		else{
 			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW" !help"ANSI_COLOR_RESET" to display help menu.\n");
