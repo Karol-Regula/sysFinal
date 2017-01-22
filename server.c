@@ -13,12 +13,23 @@
 
 #define MAX 7
 
+
+struct rooms{
+	char roomName;
+	int size;
+	int ready;
+	char userNames[][100];
+} rooms;
+
+
 void process(char *);
 int userExists(char *);
 char* authenticate(char *);
 int checkPassword(char *);
 void sub_server(int);
 void addAccount(char *);
+char * addToRoom(char *, struct rooms *);
+char * roomToString(struct rooms *, int);
 
 int main() {
 	printf("[SERVER] booting...\n");
@@ -41,6 +52,13 @@ int main() {
 void sub_server(int sd) {
 	int statusNumber = -1;
   	char buffer[MESSAGE_BUFFER_SIZE];
+	
+	struct rooms * data;
+	int sdd;
+	sdd = shmget(ftok("server.c", 174), 1048576, IPC_CREAT | IPC_EXCL | 0664);
+	data = (rooms *) shmat(sdd, 0, 0);
+  	
+  	
 	while(1){
 		read(sd, buffer, sizeof(buffer));
 		statusNumber = atoi(&buffer[0]);
@@ -67,20 +85,75 @@ void sub_server(int sd) {
 			strcpy(buffer, "Login successful");
 		}
 		if (statusNumber == 4){ // join room
-			int *** data;
-			int sd;
-			sd = shmget(ftok("server.c", 174), 1048576, IPC_CREAT | IPC_EXCL |0664);
-			data = (int ***) shmat(sd, 0, 0);
+			addToRoom(buffer, data);
 			
 		}if (statusNumber == 5){ // create room
-
+			//function that will create new room in shared memory
 			
 		}if (statusNumber == 6){ // refresh room
-			
+			//function that will send the list of rooms
 		}
 		printf("(debug) sending to client: %s\n", buffer);
 		write(sd, buffer, sizeof(buffer));
 	}
+}
+
+char * addToRoom(char * buffer, struct rooms * data){
+	//buffer = "4!join roomName userName"
+	char * out;
+	
+	int x = 0;
+	int y = 0;
+	char * temp;
+	char * userName;
+	char roomName[100];
+
+	//get relevant data from buffer sent by client
+	temp = strtok(buffer, " ");
+	strcpy(userName, temp);
+	char *p = strrchr(buffer, ' ');
+		*p = 0;
+	
+	temp = strtok(buffer, " ");
+	strcpy(roomName, temp);
+	
+	while (data[x].size){
+		if (! strcmp(roomName, &data[x].roomName) && data[x].size && data[x].size != data[x].ready){
+			//room found and can join
+			y = 0;
+			while(data[x].userNames[y]){
+				y++;
+			}
+			if (y == 3){
+				out = "Room is full, please try another room.";
+				return out;
+			}else{
+				data[x].userNames[y] = userName;
+				data[x].size++;
+				out = roomToString(data, x); //returns all room data in the form of a string
+				return out;
+			}
+		}
+		x++;
+	}
+	out = "Room does not exist, please try a different room.";
+	return out;
+}
+
+char * roomToString(struct rooms * data, int x){
+	char * out;
+	
+	int size = data[x].size;
+	int ready = data[x].ready;
+	char userName[100];
+	strcpy(userName, &data[x].userNames);
+	char roomName[100];
+	strcpy(roomName, &data[x].roomName);
+	
+	//clean this up, test version for now
+	
+	
+	return out;
 }
 
 

@@ -6,9 +6,11 @@
 #include "pipe_networking.h"
 
 int loginProcedure(int);
-void interpreter(char []);
+void interpreter(char[], int);
+char** parseHelper(char*, char*);
 void welcomePrint();
 void helpPrint();
+void lobbyPrint(char[]);
 
 //statusNumbers
 //1 - enter username (auth)
@@ -27,12 +29,12 @@ int main(int argc, char *argv[]){
  	int sd;
 	sd = client_connect(host);
 	int loggedIn = 0;
-	char username[40];
+	char* username;
 	while(1){
 		if(!(loggedIn))
 			loggedIn = loginProcedure(sd);
 		else{
-			interpreter(username);
+			interpreter(username, sd);
 			exit(1);
 		}
 	}
@@ -120,6 +122,20 @@ int loginProcedure(int sd){//working on this, will communicate with server sever
 	//stops running once logged in
 }
 
+char** parseHelper(char* input, char* delim){
+	if (input == NULL) return NULL;
+	char** args = (char**)malloc(sizeof(char**) * 100);
+	int i = 0;
+	char* dup = strdup(input);
+	while (dup){
+		args[i] = strsep(&dup, delim);
+		i++;
+	}
+	args[i] = 0;
+	free(dup);
+	return args;
+}
+
 void welcome(){
 	system("clear");
 	printf("[CLIENT] " ANSI_COLOR_GREEN "Welcome to Fnake!" ANSI_COLOR_RESET "\n");
@@ -140,11 +156,30 @@ void helpPrint(){
 	//printf("!game - joins game \n");
 }
 
-void interpreter(char username[]){
+void lobbyPrint(char data[]){
+	char** roomAll = (char**)malloc(sizeof(char**) * 100);
+	roomAll = parseHelper(data, "?");
+	int roomNum = 0;
+	while (roomAll[roomNum]){
+		int pNum = 0; //number of users in a room
+		char** room = (char**)malloc(sizeof(char**) * 100);
+		room = parseHelper(roomAll[roomNum], " ");
+		while (room[pNum]) pNum++;
+		pNum -= 3;
+		
+		if (pNum == atoi(room[2])) //game is in-session
+			printf(ANSI_COLOR_RED"%s "ANSI_COLOR_RESET"(%d in, %s ready, %s max)\n", room[0], pNum, room[2], room[1]);
+		else if (pNum == atoi(room[1])) //room is full
+			printf(ANSI_COLOR_YELLOW"%s "ANSI_COLOR_RESET"(%d in, %s ready, %s max)\n", room[0], pNum, room[2], room[1]);
+		else //room is open
+			printf(ANSI_COLOR_GREEN"%s "ANSI_COLOR_RESET"(%d in, %s ready, %s max)\n", room[0], pNum, room[2], room[1]);
+		roomNum++;
+	}
+}
+
+void interpreter(char username[], int sd){
 	welcome();
-
 	char buffer[MESSAGE_BUFFER_SIZE];
-
 	while (1){
 		printf("[CLIENT] (%s)>> ", username);
 		fgets( &buffer[1], sizeof(buffer) - 1, stdin);
@@ -153,11 +188,25 @@ void interpreter(char username[]){
 
 		if (strcmp(&buffer[1], "!help") == 0){
 			helpPrint();
-		}else if (strcmp(&buffer[1], "!exit") == 0){
+		}
+		else if (strcmp(&buffer[1], "!exit") == 0){
 			printf("[CLIENT] " ANSI_COLOR_GREEN "Thank you for playing!" ANSI_COLOR_RESET "\n");
 			exit(0);
-		}else{
-			printf ("[CLIENT] Your command was not unterstood: %s\n", &buffer[1]);
+		}
+		else if (strcmp(&buffer[1], "!refresh") == 0){
+			printf("[CLIENT] Refreshing the lobby...\n");
+			//write(sd, "6", sizeof(buffer));
+			//read(sd, buffer, sizeof(buffer));
+			//lobbyPrint(buffer);
+		}
+		else if (strcmp(&buffer[1], "!join") == 0){
+			printf("placeholder");
+		}
+		else if (strcmp(&buffer[1], "!create") == 0){
+			printf("placeholder");
+		}
+		else{
+			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW"!help"ANSI_COLOR_RESET"for help.\n");
 		}
 	}
 }
