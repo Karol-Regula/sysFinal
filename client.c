@@ -200,10 +200,14 @@ void interpreter(char username[], int sd){
 			//lobbyPrint(buffer);
 		}
 		else if (strcmp(&buffer[1], "!join") == 0){
-			printf("placeholder");
+			char *statusNum = &buffer[0];
+			*statusNum = '4';
+			write(sd, buffer, sizeof(buffer));
 		}
 		else if (strcmp(&buffer[1], "!create") == 0){
-			printf("placeholder");
+			char *statusNum = &buffer[0];
+			*statusNum = '5';
+			write(sd, buffer, sizeof(buffer));
 		}
 		else{
 			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW"!help"ANSI_COLOR_RESET"for help.\n");

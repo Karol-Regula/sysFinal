@@ -56,7 +56,7 @@ void sub_server(int sd) {
 	struct rooms * data;
 	int sdd;
 	sdd = shmget(ftok("server.c", 174), 1048576, IPC_CREAT | IPC_EXCL | 0664);
-	data = (rooms *) shmat(sdd, 0, 0);
+	data = (struct rooms *) shmat(sdd, 0, 0);
   	
   	
 	while(1){
@@ -105,7 +105,7 @@ char * addToRoom(char * buffer, struct rooms * data){
 	int x = 0;
 	int y = 0;
 	char * temp;
-	char * userName;
+	char userName[100];
 	char roomName[100];
 
 	//get relevant data from buffer sent by client
@@ -128,7 +128,8 @@ char * addToRoom(char * buffer, struct rooms * data){
 				out = "Room is full, please try another room.";
 				return out;
 			}else{
-				data[x].userNames[y] = userName;
+				strcpy(data[x].userNames[y], userName);
+				//data[x].userNames[y] = userName;
 				data[x].size++;
 				out = roomToString(data, x); //returns all room data in the form of a string
 				return out;
@@ -146,11 +147,11 @@ char * roomToString(struct rooms * data, int x){
 	int size = data[x].size;
 	int ready = data[x].ready;
 	char userName[100];
-	strcpy(userName, &data[x].userNames);
+	strcpy(userName, data[x].userNames[0]);
 	char roomName[100];
 	strcpy(roomName, &data[x].roomName);
 	
-	//clean this up, test version for now
+	//clean this up, test version for now, only returns first username
 	
 	
 	return out;
