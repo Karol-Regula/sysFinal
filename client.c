@@ -18,6 +18,15 @@ void joinedPrint(char*);
 //2 - enter password (auth)
 //3 - confirm password (auth)
 
+//Also have/do:
+//test on school computers
+//clone fresh and test
+//add to period 5 repo
+//readme file - listed on site, names of group members and periods (one repo per group?)
+//  -purpose of thing, instructions for running, how to use (tutorial)
+//  -bugs and concerns
+//
+
 int main(int argc, char *argv[]){
 	printf("[CLIENT] booting...\n");
 	char *host;

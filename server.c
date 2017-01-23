@@ -45,13 +45,14 @@ int main() {
 	int sdd;
  	while (1) {
 		connection = server_connect(sd);
+		printf("connection: %d\n", connection);
 		int f = fork();
 	  	if (f == 0) {
-			close(sd);
-			sub_server(connection);
-			exit(0);
-	 	}
-	 	else close(connection);
+				close(sd);
+				sub_server(connection);
+				exit(0);
+	 		}
+	 		else close(connection);
  	}
  	
  	return 0;
@@ -65,6 +66,7 @@ void sigHandler(int signum){
 		printf("sdd: %d\n", sdd);
 		shmdt(&sdd); //let's say this detaches
 		shmctl(sdd, IPC_RMID, 0);
+		close(4);
     exit(0);
   }
 }
@@ -274,7 +276,7 @@ char * roomToString(struct rooms * data, int x){
 
 char * roomsToString(struct rooms * data){
 	printf("rere\n");
-	char* out;
+	char *out = (char *)malloc(sizeof(char) * 100);
 	int x = 0;
 	//roomA 4 2 karol reo?roomB 4 0 god?roomC 4 3 brown platek dw k
 	printf("rere\n");
@@ -284,18 +286,17 @@ char * roomsToString(struct rooms * data){
 	while (data[x].roomName){
 		printf("rerex\n");
 		printf("data[x].roomName = %s\n", data[x].roomName);
-		printf("data[x].roomName = %s\n", data[x].roomName);
-		printf("data[x].roomName = %s\n", data[x].roomName);
-		printf("data[x].roomName = %s\n", data[x].roomName);
 		printf("rerex\n");
-		char* roomtemp;
+		char* roomtemp = (char*)malloc(sizeof(char) * 100);
 		strcpy(roomtemp, data[x].roomName);
 		printf("roomtemp: %s\n", roomtemp);
-		strcat(out, roomtemp);
+		printf("out: %s\n", out);
+		strcpy(out, roomtemp); //stops here
+		printf("rerex\n");
 		strcat(out, " ");
 		
-		char* target;
-		char* target2;
+		char* target = (char*)malloc(sizeof(int) * 2);
+		char* target2 = (char*)malloc(sizeof(int) * 2);
 		printf("rerex\n");
 		
 		sprintf(target, "%d", data[x].capacity);
