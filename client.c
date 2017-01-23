@@ -163,7 +163,8 @@ void helpPrint(){
 	printf("[CLIENT] Available commands: \n");
 	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!help" ANSI_COLOR_RESET " - opens the help utility\n");
 	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!exit" ANSI_COLOR_RESET " - exit Fnake \n");
-	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!join" ANSI_COLOR_RESET " - join a game of Fnake \n");
+	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!join <roomName>" ANSI_COLOR_RESET " - join a game of Fnake \n");
+	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!create <roomName>" ANSI_COLOR_RESET " - create a game of Fnake \n");
 	printf("[CLIENT] " ANSI_COLOR_YELLOWER "!refresh" ANSI_COLOR_RESET " - refreshes list of rooms \n");
 	printf("---------------------------------------\n");
 	//printf("!game - joins game \n");
@@ -179,7 +180,7 @@ void lobbyPrint(char* data){
 		room = parseHelper(roomAll[roomNum], " ");
 		while (room[pNum]) pNum++;
 		pNum -= 3;
-		
+
 		if (pNum == atoi(room[2])) //game is in-session
 			printf(ANSI_COLOR_RED"%s "ANSI_COLOR_RESET"(%d in, %s ready, %s max)\n", room[0], pNum, room[2], room[1]);
 		else if (pNum == atoi(room[1])) //room is full
@@ -232,7 +233,7 @@ void interpreter(int sd, char* username){
 		else if (strncmp(&buffer[1], "!join", 5) == 0){
 			char *statusNum = &buffer[0];
 			*statusNum = '4';
-			strcat(buffer, " ");   
+			strcat(buffer, " ");
 			strcat(buffer, username);
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
