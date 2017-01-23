@@ -25,7 +25,9 @@ void joinedPrint(char*);
 //readme file - listed on site, names of group members and periods (one repo per group?)
 //  -purpose of thing, instructions for running, how to use (tutorial)
 //  -bugs and concerns
-//
+
+//sending data to multiple clients - google this (single port might help)
+//what is a select server
 
 int main(int argc, char *argv[]){
 	printf("[CLIENT] booting...\n");
