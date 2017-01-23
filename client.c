@@ -209,7 +209,7 @@ void interpreter(int sd, char* username){
 			helpPrint();
 		}
 		else if (strcmp(&buffer[1], "!exit") == 0){
-			printf("[CLIENT] " ANSI_COLOR_GREEN "Thank you for playing!" ANSI_COLOR_RESET "\n");
+			printf("[CLIENT] Exiting game..."ANSI_COLOR_CYAN" Thank you "ANSI_COLOR_RESET"for playing!""\n");
 			exit(0);
 		}
 		else if (strcmp(&buffer[1], "!refresh") == 0){
@@ -218,7 +218,7 @@ void interpreter(int sd, char* username){
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
 			printf("buffer after read refresh: %s\n", buffer);
-			lobbyPrint(buffer);
+			//lobbyPrint(buffer);
 		}
 		else if (strncmp(&buffer[1], "!join", 5) == 0){
 			char *statusNum = &buffer[0];

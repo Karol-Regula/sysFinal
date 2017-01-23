@@ -59,8 +59,8 @@ int main() {
 
 void sigHandler(int signum){
 	if (signum == SIGINT){
-		printf("hola!\n");
-		printf("globsdd: %d\n", globsdd);
+		printf(" Shared memory will be deleted.\n"); 
+		printf("global_sdd: %d\n", globsdd);
 		int sdd = globsdd;
 		printf("sdd: %d\n", sdd);
 		shmdt(&sdd); //let's say this detaches
@@ -121,6 +121,7 @@ void sub_server(int sd) {
 			
 		}if (statusNumber == 6){ // refresh room
 			char* temp = roomsToString(data);
+			printf("(debug) roomsToString(data): %s\n", temp);
 			strcpy(buffer, temp);
 		}
 		printf("(debug) sending to client: %s\n", buffer);
