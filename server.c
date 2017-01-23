@@ -8,20 +8,23 @@
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <sys/types.h>
+#include <signal.h>
 
 #include "pipe_networking.h"
 
-#define MAX 7
+#define MAX 4
 
+extern int globsdd;
+int globsdd;
 
 struct rooms{
-	char * roomName;
-	int size;
+	char roomName[100];
+	int capacity;
 	int ready;
 	char ** userNames;
 } rooms;
 
-
+void sigHandler(int);
 void process(char *);
 int userExists(char *);
 char * authenticate(char *);
@@ -35,9 +38,11 @@ char * roomsToString(struct rooms *);
 
 int main() {
 	printf("[SERVER] booting...\n");
+	signal(SIGINT, sigHandler);
 	int sd, connection;
 	char buffer [MESSAGE_BUFFER_SIZE];
 	sd = server_setup();
+	int sdd;
  	while (1) {
 		connection = server_connect(sd);
 		int f = fork();
@@ -48,16 +53,32 @@ int main() {
 	 	}
 	 	else close(connection);
  	}
+ 	
  	return 0;
+}
+
+void sigHandler(int signum){
+	if (signum == SIGINT){
+		printf("hola!\n");
+		printf("globsdd: %d\n", globsdd);
+		int sdd = globsdd;
+		printf("sdd: %d\n", sdd);
+		shmdt(&sdd); //let's say this detaches
+		shmctl(sdd, IPC_RMID, 0);
+    exit(0);
+  }
 }
 
 void sub_server(int sd) {
 	int statusNumber = -1;
   	char buffer[MESSAGE_BUFFER_SIZE];
 	
-	struct rooms * data;
 	int sdd;
+	struct rooms * data;
 	sdd = shmget(ftok("server.c", 174), 1048576, IPC_CREAT | 0664);
+	globsdd = sdd;
+	printf("sdd: %d\n", sdd);
+	
 	data = (struct rooms *) shmat(sdd, 0, 0);
   	
   	
@@ -94,7 +115,8 @@ void sub_server(int sd) {
 			printf("status number 4 buffer: %s\n", buffer);
 		}if (statusNumber == 5){ // create room
 			char * temp = createRoom(buffer, data);
-			printf("Line 97 temp: %s\n", temp);
+			printf("data[x].roomName (out of function): %s\n", data[0].roomName);	
+			printf("data[x].capacity (out of function): %d\n", data[0].capacity);	
 			strcpy(buffer, temp);
 			
 		}if (statusNumber == 6){ // refresh room
@@ -130,9 +152,9 @@ char * joinRoom(char * buffer, struct rooms * data){
 	printf("here2\n");
 	strcpy(roomName, temp);
 	printf("here2\n");
-	while (data[x].size){
+	while (data[x].capacity){
 		printf("here2\n");
-		if (! strcmp(roomName, data[x].roomName) && data[x].size && data[x].size != data[x].ready){
+		if (! strcmp(roomName, data[x].roomName) && data[x].capacity && data[x].capacity != data[x].ready){
 			//room found and can join
 			y = 0;
 			printf("here2\n");
@@ -147,7 +169,7 @@ char * joinRoom(char * buffer, struct rooms * data){
 				printf("here2\n");
 				strcpy(data[x].userNames[y], userName);
 				//data[x].userNames[y] = userName;
-				data[x].size++;
+				data[x].capacity++;
 				out = roomToString(data, x); //returns all room data in the form of a string
 				printf("here4\n");
 				return out;
@@ -163,40 +185,67 @@ char * joinRoom(char * buffer, struct rooms * data){
 char * createRoom(char* buffer, struct rooms * data){
 	//buffer = "5!create roomName userName"
 	char* out;
-	printf("cere1\n");
 	int x = 0;
 	int y = 0;
 	char* temp;
 	char userName[100];
 	char roomName[100];
-	printf("cere1\n");
 
 	//get relevant data from buffer sent by client
-	temp = strtok(buffer, " ");
-	printf("cere1\n");
-	strcpy(userName, temp);
-	printf("cere1\n");
-	char *p = strrchr(buffer, ' ');
-	printf("cere1\n");
-	//*p = 0;
-	printf("cere1\n");
+	temp = strrchr(buffer, ' ');
+	strcpy(userName, &temp[1]);
+	printf("create: userName = %s\n", userName);
+	*temp = 0;
+	printf("buffer: %s\n", buffer);
+	temp = strchr(buffer, ' ');
+	strcpy(roomName, &temp[1]);
+	printf("create: roomName = %s\n", roomName);
 	
-	temp = strtok(buffer, " ");
-	strcpy(roomName, temp);
-	printf("cere1\n");
-	
-	while (data[x].size){
+	while (data[x].capacity){
+		printf("data[x].capacity: %d\n", data[x].capacity);
+		printf("data[x].roomName: %s\n", data[x].roomName);
 		x++;
 	}
-	printf("cere2\n");
-	data[x].userNames[0] = userName;
-	data[x].roomName = roomName;
-	data[x].size = 1;
+	
+	char ** array = malloc(sizeof(**array) * 4);
+	int i;
+	for (i = 0; i < 4; ++i){
+  	array[i] = malloc(sizeof(*array) * 1000);
+	}
+  (data[x]).userNames = array;
+  
+  
+  //data[x].roomName = malloc(sizeof(data[x].roomName));
+  
+  
+
+// typedef struct{
+//     int    height;
+//     int    width;
+//     int    bottom;
+//     unsigned int **dat_ptr;
+// } array_info;
+
+// void create_array(array_info *A){
+//     unsigned int **array = malloc(sizeof(*array) * A->height);
+//     for (int i = 0; i < A->height; ++i)
+//         array[i] = malloc(sizeof(**array) * A->width);
+//     A->dat_ptr = array;
+// }
+
+
+
+	printf("WHAT IS x?: %d\n", x);
+	strcpy(data[x].userNames[0], userName);
+	printf("data[x].userNames[0] %s\n", data[x].userNames[0]);
+	strcpy(data[x].roomName, roomName);
+	printf("data[x].roomName: %s\n", data[x].roomName);
+	data[x].capacity = MAX;
+	printf("data[x].capacity: %d\n", data[x].capacity);
 	data[x].ready = 0;
-	printf("cere1\n");
+	printf("data[x].ready: %d\n", data[x].ready);
 	
 	out = "success";
-	printf("cere3\n");
 	return out;
 }
 
@@ -204,7 +253,7 @@ char * roomToString(struct rooms * data, int x){
 	char * out;
 	int len = 0;
 	
-	int size = data[x].size;
+	int capacity = data[x].capacity;
 	int ready = data[x].ready;
 	char userName[100];
 	strcpy(userName, data[x].userNames[0]);
@@ -215,7 +264,7 @@ char * roomToString(struct rooms * data, int x){
 	len += strlen(roomName);
 	out[len] = ' ';
 	len++;
-	out[len + 1] = size;
+	out[len + 1] = capacity;
 	out[len + 2] = ' ';
 	
 	
@@ -223,17 +272,52 @@ char * roomToString(struct rooms * data, int x){
 }
 
 char * roomsToString(struct rooms * data){
-	char * out;
-	int len = 0;
+	printf("rere\n");
+	char* out;
 	int x = 0;
+	//roomA 4 2 karol reo?roomB 4 0 god?roomC 4 3 brown platek dw k
+	printf("rere\n");
+	
+	printf("data[x].roomName = %s\n", data[x].roomName);
+	
 	while (data[x].roomName){
-		strcpy(out, "hahah");
-		//out[len] = *data[x].roomName;
-		len += strlen(data[x].roomName);
-		strcpy(&out[len + 1], " ");
-		len++;
+		printf("rerex\n");
+		printf("data[x].roomName = %s\n", data[x].roomName);
+		printf("data[x].roomName = %s\n", data[x].roomName);
+		printf("data[x].roomName = %s\n", data[x].roomName);
+		printf("data[x].roomName = %s\n", data[x].roomName);
+		printf("rerex\n");
+		char* roomtemp;
+		strcpy(roomtemp, data[x].roomName);
+		printf("roomtemp: %s\n", roomtemp);
+		strcat(out, roomtemp);
+		strcat(out, " ");
+		
+		char* target;
+		char* target2;
+		printf("rerex\n");
+		
+		sprintf(target, "%d", data[x].capacity);
+		sprintf(target2, "%d", data[x].ready);
+		
+		strcat(out, target);
+		strcat(out, " ");
+	  strcat(out, target2);
+		strcat(out, " ");
+		printf("rerex\n");
+		int y;
+		while (data[x].userNames[y]){
+			printf("rerey\n");
+			strcat(out, data[x].userNames[y]);
+			strcat(out, " ");
+			y++;
+		}
+		strcat(out, "?");
 		x++;
 	}
+	printf("rere\n");
+	*(strrchr(out, '?')) = 0;
+	printf("final out for refresh: %s\n", out);
 	return out;
 	
 }
@@ -383,5 +467,5 @@ void addAccount(char *s){
 		printf("error: %d - %s\n", errno, strerror(errno));
 	printf("[SERVER] Adding entry to database...\n");
 	write(fd, entry, strlen(entry));
-	close(fd);
+	close(fd); 
 }

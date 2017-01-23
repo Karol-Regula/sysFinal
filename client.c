@@ -214,9 +214,11 @@ void interpreter(int sd, char* username){
 		}
 		else if (strcmp(&buffer[1], "!refresh") == 0){
 			printf("[CLIENT] Refreshing the lobby...\n");
-			//write(sd, "6", sizeof(buffer));
-			//read(sd, buffer, sizeof(buffer));
-			//lobbyPrint(buffer);
+			strcpy(buffer, "6");
+			write(sd, buffer, sizeof(buffer));
+			read(sd, buffer, sizeof(buffer));
+			printf("buffer after read refresh: %s\n", buffer);
+			lobbyPrint(buffer);
 		}
 		else if (strncmp(&buffer[1], "!join", 5) == 0){
 			char *statusNum = &buffer[0];
@@ -247,7 +249,7 @@ void interpreter(int sd, char* username){
 				printf("[CLIENT] Room created successfully!\n");
 		}
 		else{
-			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW" !help"ANSI_COLOR_RESET" to display help menu.\n");
+			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW"!help"ANSI_COLOR_RESET" to display help menu.\n");
 		}
 	}
 }
