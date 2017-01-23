@@ -119,6 +119,7 @@ void sub_server(int sd) {
 			char * temp = createRoom(buffer, data);
 			printf("data[x].roomName (out of function): %s\n", data[0].roomName);	
 			printf("data[x].capacity (out of function): %d\n", data[0].capacity);	
+			printf("data[x].userNames[0] (out of function) %s\n", data[0].userNames[0]);
 			strcpy(buffer, temp);
 			
 		}if (statusNumber == 6){ // refresh room
@@ -216,11 +217,6 @@ char * createRoom(char* buffer, struct rooms * data){
   	array[i] = malloc(sizeof(*array) * 1000);
 	}
   (data[x]).userNames = array;
-  
-  
-  //data[x].roomName = malloc(sizeof(data[x].roomName));
-  
-  
 
 // typedef struct{
 //     int    height;
@@ -235,8 +231,6 @@ char * createRoom(char* buffer, struct rooms * data){
 //         array[i] = malloc(sizeof(**array) * A->width);
 //     A->dat_ptr = array;
 // }
-
-
 
 	printf("WHAT IS x?: %d\n", x);
 	strcpy(data[x].userNames[0], userName);
@@ -275,29 +269,18 @@ char * roomToString(struct rooms * data, int x){
 }
 
 char * roomsToString(struct rooms * data){
-	printf("rere\n");
 	char *out = (char *)malloc(sizeof(char) * 100);
 	int x = 0;
+	int y = 0;
 	//roomA 4 2 karol reo?roomB 4 0 god?roomC 4 3 brown platek dw k
-	printf("rere\n");
-	
-	printf("data[x].roomName = %s\n", data[x].roomName);
 	
 	while (data[x].roomName){
-		printf("rerex\n");
 		printf("data[x].roomName = %s\n", data[x].roomName);
-		printf("rerex\n");
-		char* roomtemp = (char*)malloc(sizeof(char) * 100);
-		strcpy(roomtemp, data[x].roomName);
-		printf("roomtemp: %s\n", roomtemp);
-		printf("out: %s\n", out);
-		strcpy(out, roomtemp); //stops here
-		printf("rerex\n");
+		strcat(out, data[x].roomName);
 		strcat(out, " ");
 		
 		char* target = (char*)malloc(sizeof(int) * 2);
 		char* target2 = (char*)malloc(sizeof(int) * 2);
-		printf("rerex\n");
 		
 		sprintf(target, "%d", data[x].capacity);
 		sprintf(target2, "%d", data[x].ready);
@@ -306,18 +289,22 @@ char * roomsToString(struct rooms * data){
 		strcat(out, " ");
 	  strcat(out, target2);
 		strcat(out, " ");
+		y = 0;
 		printf("rerex\n");
-		int y;
-		while (data[x].userNames[y]){
+		printf("x: %d\n", x);
+		printf("y: %d\n", y);
+		printf("data[%d].userName[%d]: %s\n", x, y, data[x].userNames[y]);
+		while (data[x].userNames[y] && y < 4){
 			printf("rerey\n");
 			strcat(out, data[x].userNames[y]);
 			strcat(out, " ");
 			y++;
 		}
+		printf("rerex\n");
 		strcat(out, "?");
 		x++;
 	}
-	printf("rere\n");
+	printf("rered\n");
 	*(strrchr(out, '?')) = 0;
 	printf("final out for refresh: %s\n", out);
 	return out;
