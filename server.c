@@ -480,6 +480,7 @@ char * currentRoomToString(struct rooms * data, char * buffer){
 	
 	strcpy(out, roomToString(data, x));
 	printf("currentRoomToString out: %s\n", out);
+	strcat(out, "\0");
 	return out;
 }
 
@@ -532,15 +533,17 @@ char* startGame(struct rooms * data, char * buffer){
 
 
 	if (data[x].ready == active){
-		char* playerNum = (char*)malloc(sizeof(char) * 2);
+		char* playerNum = (char*)malloc(sizeof(char) * 4);
 		printf("playerNum: %s\n", playerNum);
 		sprintf(playerNum, "%d", y);
+		strcat(playerNum, "\0");
 		return playerNum;
 	}
 	else{
-		char* playerNum = (char*)malloc(sizeof(char) * 2);
+		char* playerNum = (char*)malloc(sizeof(char) * 4);
 		printf("playerNum: %s\n", playerNum);
 		sprintf(playerNum, "%d", -1);
+		strcat(playerNum, "\0");
 		return playerNum;
 	}
 }

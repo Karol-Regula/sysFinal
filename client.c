@@ -8,7 +8,7 @@
 
 int loginProcedure(int, char**);
 int lobbyInterpreter(int, char*, char **);
-int roomInterpreter(int, char*, char*);
+int roomInterpreter(int, char*, char*, int*, int*, int*);
 void gameInterpreter(int, char*, char*);
 char** parseHelper(char*, char*);
 void welcomePrint();
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]){
 			inRoom = lobbyInterpreter(sd, username, &roomname);
 		}
 		else if(!(inGame)){
-			inRoom = roomInterpreter(sd, username, roomname);
+			inRoom = roomInterpreter(sd, username, roomname, &isReady, &inGame, &userNumber);
 		}
 		else{
 			gameInterpreter(sd, username, roomname);
@@ -310,12 +310,39 @@ int lobbyInterpreter(int sd, char* username, char ** roomname){
 	return 0;
 }
 
-int roomInterpreter(int sd, char * username, char* roomname){
+int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* inGame, int* userNumber){
 	char buffer[MESSAGE_BUFFER_SIZE];
-	while(1){
+	
+	while(! *inGame){
 		printf("[CLIENT] @ %s -- %s: ", username, roomname);
-		fgets( &buffer[1], sizeof(buffer) - 1, stdin);
-		*(strchr(buffer, '\n')) = 0;
+		if (! *isReady){
+			fgets( &buffer[1], sizeof(buffer) - 1, stdin);
+		  *(strchr(buffer, '\n')) = 0;
+		}
+		else{
+			 int started = 0;
+			 while (! started){
+			 	sleep(5);
+				
+			  strcpy(buffer, "0");
+				strcat(buffer, " ");
+				strcat(buffer, roomname);
+				strcat(buffer, " ");
+				strcat(buffer, username);
+				printf("username: %s\n", username);
+				printf("(debug) ready, not started -- buffer to server: %s\n", buffer);
+				write(sd, buffer, sizeof(buffer));
+				read(sd, buffer, sizeof(buffer));
+				printf("(debug) ready, not started yet -- buffer from server: %s\n", buffer);
+				if (strcmp(buffer, "-1") != 0){ //user assigned player number, game started
+					started = 1;
+					*userNumber = atoi(buffer);
+					*inGame = 1;
+				}
+			}
+		}
+		
+		
 		if (strcmp(&buffer[1], "!help") == 0){
 			helpPrintRoom();
 		}
@@ -324,24 +351,24 @@ int roomInterpreter(int sd, char * username, char* roomname){
 			exit(0);
 		}
 		else if (strcmp(&buffer[1], "!leave") == 0){
-			//if (*isReady){
-				printf("[CLIENT] Wait for the game to begin.");
-			//}else{
-			printf("[CLIENT] Exiting "ANSI_COLOR_CYAN" %s "ANSI_COLOR_RESET"...\n", roomname);
-			printf("[CLIENT] call refresh command at this point\n");
-			char *statusNum = &buffer[0];
-			*statusNum = '8';
-			strcat(buffer, " ");
-			strcat(buffer, roomname);
-			strcat(buffer, " ");
-			strcat(buffer, username);
-			printf("(debug) room !leave -- buffer to server: %s\n", buffer);
-			write(sd, buffer, sizeof(buffer));
-			read(sd, buffer, sizeof(buffer));
-			printf("(debug) room !leave -- buffer from server: %s\n", buffer);
-			//*isReady = 0;
-			//	return 0;
-		//	}
+			if (*isReady){
+				printf("[CLIENT] Wait for the game to begin.\n");
+			}else{
+				printf("[CLIENT] Exiting "ANSI_COLOR_CYAN" %s "ANSI_COLOR_RESET"...\n", roomname);
+				printf("[CLIENT] call refresh command at this point\n");
+				char *statusNum = &buffer[0];
+				*statusNum = '8';
+					strcat(buffer, " ");
+				strcat(buffer, roomname);
+				strcat(buffer, " ");
+				strcat(buffer, username);
+				printf("(debug) room !leave -- buffer to server: %s\n", buffer);
+				write(sd, buffer, sizeof(buffer));
+				read(sd, buffer, sizeof(buffer));
+				printf("(debug) room !leave -- buffer from server: %s\n", buffer);
+				*isReady = 0;
+				return 0;
+			}
 		}
 		else if (strcmp(&buffer[1], "!refresh") == 0){
 			printf("[CLIENT] Refreshing the room...\n");
@@ -351,14 +378,15 @@ int roomInterpreter(int sd, char * username, char* roomname){
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
 			printf("roomInterpreter(): buffer after read refresh: %s\n", buffer);
-			printf("username: %s\n", username);
+			//printf("username: %s\n", username);
 			joinedPrint(buffer);
-			printf("username: %s\n", username);
+			//printf("username: %s\n", username);
 		}
 		else if (strcmp(&buffer[1], "!ready") == 0){
-			//if (*isReady){
+			if (*isReady){
 				printf("You have already set your status to ready.\n");
-			//}else{
+			}
+			else{
 				strcpy(buffer, "9");
 				strcat(buffer, " ");
 				strcat(buffer, roomname);
@@ -366,8 +394,8 @@ int roomInterpreter(int sd, char * username, char* roomname){
 				read(sd, buffer, sizeof(buffer));
 				printf("buffer after read refresh: %s\n", buffer);
 				printf("You are now ready!\n");
-				//*isReady = 1;
-		//	}
+				*isReady = 1;
+			}
 		}
 		else{
 			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW"!help"ANSI_COLOR_RESET" to display help menu.\n");
@@ -377,7 +405,6 @@ int roomInterpreter(int sd, char * username, char* roomname){
 	
 	
 void gameInterpreter(int sd, char* username, char* roomname){
-	printf("game has begun!");
 	
 }
 
