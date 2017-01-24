@@ -27,14 +27,17 @@ struct rooms{
 void sigHandler(int);
 void process(char *);
 int userExists(char *);
-char * authenticate(char *);
+char* authenticate(char *);
 int checkPassword(char *);
 void sub_server(int);
 void addAccount(char *);
-char * joinRoom(char *, struct rooms *);
-char * createRoom(char *, struct rooms *);
-char * roomToString(struct rooms *, int);
-char * roomsToString(struct rooms *);
+char* joinRoom(char *, struct rooms *);
+char* createRoom(char *, struct rooms *);
+char* leaveRoom(char *, struct rooms *);
+char* roomToString(struct rooms *, int);
+char* roomsToString(struct rooms *);
+char* currentRoomToString(struct rooms *, char *);
+void readyPlus(struct rooms *, char *);
 
 int main() {
 	printf("[SERVER] booting...\n");
@@ -140,9 +143,20 @@ void sub_server(int sd) {
 			printf("data[x].player1 (out of function) %s\n", data[0].player1);
 			strcpy(buffer, temp);
 			
-		}if (statusNumber == 6){ // refresh room
+		}if (statusNumber == 6){ // refresh lobby
 			char* temp = roomsToString(data);
 			printf("(debug) roomsToString(data): %s\n", temp);
+			strcpy(buffer, temp);
+		}if (statusNumber == 7){ // refresh room
+			char* temp = currentRoomToString(data, buffer);
+			strcpy(buffer, temp);
+		}if (statusNumber == 8){ // leave room
+			char* temp = leaveRoom(buffer, data);
+			printf("(debug) leaveRoom(data): %s\n", temp);
+			//strcpy(buffer, temp);
+		}if (statusNumber == 9){ // ready
+			readyPlus(data, buffer);
+			char* temp = "done";
 			strcpy(buffer, temp);
 		}
 		printf("(debug) sending to client: %s\n", buffer);
@@ -241,6 +255,64 @@ char * createRoom(char* buffer, struct rooms * data){
 	printf("data[x].ready: %d\n", data[x].ready);
 	
 	out = "success";
+	return out;
+}
+
+char* leaveRoom(char* buffer, struct rooms* data){
+	//buffer = "8!leave roomName userName"
+	char* out;
+	char* temp;
+	char buffer_roomname[100];
+	char buffer_username[100];
+	
+	//get relevant data from buffer sent by client
+	temp = strrchr(buffer, ' ');
+	strcpy(buffer_username, &temp[1]);
+	printf("(debug) leaveRoom(): username = %s\n", buffer_username);
+	*temp = 0;
+	printf("(debug) leaveRoom(): buffer =  %s\n", buffer);
+	temp = strchr(buffer, ' ');
+	strcpy(buffer_roomname, &temp[1]);
+	printf("(debug) leaveRoom(): roomname = %s\n", buffer_roomname);
+	
+	//find location of the room you're leaving
+	int pos = 0;
+	while (strcmp(data[pos].roomName, "") != 0){
+		if (strcmp(data[pos].roomName, buffer_roomname) == 0)
+			break;
+		pos++;
+	}
+	printf("(debug) leaveRoom(): pos of room = %d\n", pos);
+	
+	//modify the room data
+	data[pos].ready = 0; //reset ready num
+	printf("(debug) leaveRoom(): read # = %d\n", data[pos].ready);
+	int playerPos = 0;
+	if (strcmp(data[pos].player1, buffer_username) == 0){
+		playerPos = 1;
+		strcpy(data[pos].player1, "");
+	}
+	else if(strcmp(data[pos].player1, buffer_username) == 0){
+		playerPos = 2;
+		strcpy(data[pos].player2, "");
+	}
+	else if(strcmp(data[pos].player1, buffer_username) == 0){
+		playerPos = 3;
+		strcpy(data[pos].player3, "");
+	}
+	else if(strcmp(data[pos].player1, buffer_username) == 0){
+		playerPos = 4;
+		strcpy(data[pos].player4, "");
+	}
+	else printf("(debug) leaveRoom(): error -- player wasn't in room to begin with?\n");
+	
+	
+	
+	
+	
+	//send-off
+	strcpy(out, buffer_roomname);
+	//printf("(debug) leaveRoom(): final string = %s\n", out);
 	return out;
 }
 
@@ -343,6 +415,34 @@ char * roomsToString(struct rooms * data){
 	}
 	printf("final out for refresh: %s\n", out);
 	return out;
+}
+
+char * currentRoomToString(struct rooms * data, char * roomName){
+	//convert roomName to number and do roomToString
+	char * out = (char *)malloc(sizeof(char) * 1000);
+	int x = 0;
+	
+	while (strcmp(roomName, data[x].roomName) == 0){
+		x++;
+	}
+	
+	strcpy(out, roomToString(data, x));
+	printf("currentRoomToString out: %s\n", out);
+	return out;
+}
+
+void readyPlus(struct rooms * data, char * buffer){
+	int x = 0;
+	char * roomName = (char *)malloc(sizeof(char) * 1000);
+	strcpy(roomName, &buffer[2]);
+	printf("roomName: %s\n", roomName);
+	
+	while (strcmp(roomName, data[x].roomName) == 0){
+		x++;
+	}
+	x--;
+	data[x].ready++;
+	printf("Incrementing data[%d].roomName: %s to: %d\n", x, data[x].roomName, data[x].ready);
 }
 
 
