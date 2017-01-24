@@ -14,14 +14,14 @@
 
 #define MAX 4
 
-extern int globsdd;
-int globsdd;
-
 struct rooms{
 	char roomName[100];
 	int capacity;
-	int ready;
-	char ** userNames;
+	int ready
+	char player1[100];
+	char player2[100];
+	char player3[100];
+	char player4[100];
 } rooms;
 
 void sigHandler(int);
@@ -42,7 +42,6 @@ int main() {
 	int sd, connection;
 	char buffer [MESSAGE_BUFFER_SIZE];
 	sd = server_setup();
-	int sdd;
  	while (1) {
 		connection = server_connect(sd);
 		printf("connection: %d\n", connection);
@@ -61,27 +60,46 @@ int main() {
 void sigHandler(int signum){
 	if (signum == SIGINT){
 		printf(" Shared memory will be deleted.\n"); 
-		printf("global_sdd: %d\n", globsdd);
-		int sdd = globsdd;
-		printf("sdd: %d\n", sdd);
-		shmdt(&sdd); //let's say this detaches
-		shmctl(sdd, IPC_RMID, 0);
+		
+		//read sm_fd from file
+		int sm_fd, fd;
+		fd = open("sm_filedesc.txt", O_RDWR, 0664);
+		if (fd == -1){
+			printf("error: %d - %s\n", errno, strerror(errno));
+		}
+		else {		
+			read(fd, &sm_fd, sizeof(sm_fd));
+			printf("sm_fd: %d\n", sm_fd);
+			close(fd);
+		}
+		
+		
+		printf("sm_fd: %d\n", sm_fd);
+		shmdt(&sm_fd); //let's say this detaches
+		shmctl(sm_fd, IPC_RMID, 0);
 		close(4);
     exit(0);
   }
 }
 
 void sub_server(int sd) {
+	char buffer[MESSAGE_BUFFER_SIZE];
 	int statusNumber = -1;
-  	char buffer[MESSAGE_BUFFER_SIZE];
-	
-	int sdd;
+	int sm_fd;
 	struct rooms * data;
-	sdd = shmget(ftok("server.c", 174), 1048576, IPC_CREAT | 0664);
-	globsdd = sdd;
-	printf("sdd: %d\n", sdd);
+	//write new sm_fd to file
+	sm_fd = shmget(ftok("server.c", 174), 1048576, IPC_CREAT | 0664);
+	int fd = open("sm_filedesc.txt", O_RDWR | O_CREAT, 0664);
+	if (fd == -1)
+		printf("error: %d - %s\n", errno, strerror(errno));
+	else {
+		write(fd, &sm_fd, sizeof(sm_fd));
+		close(fd);
+	}
 	
-	data = (struct rooms *) shmat(sdd, 0, 0);
+	printf("sm_fd: %d\n", sm_fd);
+	
+	data = (struct rooms *) shmat(sm_fd, 0, 0);
   	
   	
 	while(1){
@@ -211,30 +229,10 @@ char * createRoom(char* buffer, struct rooms * data){
 		x++;
 	}
 	
-	char ** array = malloc(sizeof(**array) * 4);
-	int i;
-	for (i = 0; i < 4; ++i){
-  	array[i] = malloc(sizeof(*array) * 1000);
-	}
-  (data[x]).userNames = array;
-
-// typedef struct{
-//     int    height;
-//     int    width;
-//     int    bottom;
-//     unsigned int **dat_ptr;
-// } array_info;
-
-// void create_array(array_info *A){
-//     unsigned int **array = malloc(sizeof(*array) * A->height);
-//     for (int i = 0; i < A->height; ++i)
-//         array[i] = malloc(sizeof(**array) * A->width);
-//     A->dat_ptr = array;
-// }
 
 	printf("WHAT IS x?: %d\n", x);
-	strcpy(data[x].userNames[0], userName);
-	printf("data[x].userNames[0] %s\n", data[x].userNames[0]);
+	strcpy(data[x].player1, userName);
+	printf("data[x].player1 %s\n", data[x].player1);
 	strcpy(data[x].roomName, roomName);
 	printf("data[x].roomName: %s\n", data[x].roomName);
 	data[x].capacity = MAX;
@@ -272,13 +270,24 @@ char * roomsToString(struct rooms * data){
 	char *out = (char *)malloc(sizeof(char) * 100);
 	int x = 0;
 	int y = 0;
-	//roomA 4 2 karol reo?roomB 4 0 god?roomC 4 3 brown platek dw k
 	
-	while (data[x].roomName){
+	//roomA 4 2 karol reo?roomB 4 0 god?roomC 4 3 brown platek dw k
+	while (strcmp(data[x].roomName, "") != 0){
 		printf("data[x].roomName = %s\n", data[x].roomName);
 		strcat(out, data[x].roomName);
 		strcat(out, " ");
 		
+
+
+		char ** array = malloc(sizeof(**array) * 4);     //PROBLEMPROBLEMPROBLEMPROBLEM
+		int i;
+		for (i = 0; i < 4; ++i){
+  		array[i] = malloc(sizeof(*array) * 1000);
+		}
+  	(data[x]).userNames = array;
+
+
+
 		char* target = (char*)malloc(sizeof(int) * 2);
 		char* target2 = (char*)malloc(sizeof(int) * 2);
 		
@@ -293,22 +302,27 @@ char * roomsToString(struct rooms * data){
 		printf("rerex\n");
 		printf("x: %d\n", x);
 		printf("y: %d\n", y);
-		printf("data[%d].userName[%d]: %s\n", x, y, data[x].userNames[y]);
-		while (data[x].userNames[y] && y < 4){
+		printf("data[%d].userNames[%d]: %s\n", x, y, data[x].userNames[y]);
+		printf("strcmp(data[x].userNames[y]): %d\n", strcmp(data[x].userNames[y], ""));
+		while ((strcmp(data[x].userNames[y], "") != 0) && y < 4){
 			printf("rerey\n");
 			strcat(out, data[x].userNames[y]);
 			strcat(out, " ");
 			y++;
 		}
 		printf("rerex\n");
-		strcat(out, "?");
+		*(strrchr(out, ' ')) = '?';
 		x++;
 	}
 	printf("rered\n");
-	*(strrchr(out, '?')) = 0;
+	printf("out after rered: %s\n", out);
+	if (strcmp(out, "") != 0)
+		*(strrchr(out, '?')) = 0;
+	else {
+		strcpy(out, "DNE");
+	}
 	printf("final out for refresh: %s\n", out);
 	return out;
-	
 }
 
 

@@ -230,6 +230,8 @@ void interpreter(int sd, char* username){
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
 			printf("buffer after read refresh: %s\n", buffer);
+			if (strcmp(buffer, "DNE") == 0)
+				printf("No rooms currently exist. Make one with the "ANSI_COLOR_YELLOW"!create"ANSI_COLOR_RESET" command.\n");
 			//lobbyPrint(buffer);
 		}
 		else if (strncmp(&buffer[1], "!join", 5) == 0){
@@ -251,8 +253,10 @@ void interpreter(int sd, char* username){
 		else if (strncmp(&buffer[1], "!create", 6) == 0){
 			char *statusNum = &buffer[0];
 			*statusNum = '5';
+			printf("here\n");
 			strcat(buffer, " ");
 			strcat(buffer, username);
+			printf("here\n");
 			printf("(debug) sending buffer for !create: %s\n", buffer);
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
