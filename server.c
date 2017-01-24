@@ -38,7 +38,7 @@ char* roomToString(struct rooms *, int);
 char* roomsToString(struct rooms *);
 char* currentRoomToString(struct rooms *, char *);
 void readyPlus(struct rooms *, char *);
-int startGame(struct rooms *, char *);
+char * startGame(struct rooms *, char *);
 
 int main() {
 	printf("[SERVER] booting...\n");
@@ -159,6 +159,9 @@ void sub_server(int sd) {
 			readyPlus(data, buffer);
 			char* temp = "done";
 			strcpy(buffer, temp);
+		}if (statusNumber == 0){
+			char * temp = startGame(data, buffer);
+			strcpy(buffer, temp);
 		}
 		printf("(debug) sending to client: %s\n", buffer);
 		write(sd, buffer, sizeof(buffer));
@@ -168,8 +171,8 @@ void sub_server(int sd) {
 char * joinRoom(char * buffer, struct rooms * data){
 	//buffer = "4!join roomName userName"
 	char * out;
+	int active = 0;
 	int x = 0;
-	int y = 0;
 	char * temp;
 	char userName[100];
 	char roomName[100];
@@ -184,28 +187,25 @@ char * joinRoom(char * buffer, struct rooms * data){
 	while (strcmp(data[x].roomName, "") != 0){
 		printf("Join: looking for roomName: %s\n", roomName);
 		printf("Comparing to data[x].roomName: %s\n", data[x].roomName);
-		if (! strcmp(roomName, data[x].roomName) && data[x].capacity != data[x].ready){
-			//room found and can join
-			if (strcmp(data[x].player1, "") == 0){
-				y = 0;
-			}else if (strcmp(data[x].player2, "") == 0){
-				y = 1;
-			}else if (strcmp(data[x].player3, "") == 0){
-				y = 2;
-			}else if (strcmp(data[x].player4, "") == 0){
-				y = 3;
-			}else{
+		active = 0;
+		if (! strcmp(roomName, data[x].roomName)){
+			if (strcmp(data[x].player1, "") != 0) active++;
+			if (strcmp(data[x].player2, "") != 0) active++;
+			if (strcmp(data[x].player3, "") != 0) active++;
+			if (strcmp(data[x].player4, "") != 0) active++;
+			if ((active == data[x].ready || active == data[x].capacity) && active != 0){
 				out = "full/in";
 				return out;
 			}
-			printf("y after checking for empty slots: %d\n", y);
-			if (y == 0){
+			//room found and can join
+			printf("active after checking for empty slots: %d\n", active);
+			if (active == 0){
 				strcpy(data[x].player1, userName);
-			}else if (y == 1){
+			}else if (active == 1){
 				strcpy(data[x].player2, userName);
-			}else if (y == 2){
+			}else if (active == 2){
 				strcpy(data[x].player3, userName);
-			}else if (y == 3){
+			}else if (active == 3){
 				strcpy(data[x].player4, userName);
 			}else{
 				printf("Something went wrong.\n");
@@ -285,44 +285,66 @@ char* leaveRoom(char* buffer, struct rooms* data){
 	}
 	printf("(debug) leaveRoom(): pos of room = %d\n", pos);
 	
-	//reset ready num
-	data[pos].ready = 0; 
+	//modify ready num
+	data[pos].ready--; 
 	printf("(debug) leaveRoom(): read # = %d\n", data[pos].ready);
 	
 	//locate player to be removed and shift other players accordingly
-	if (strcmp(data[pos].player1, buffer_username) == 0){
-		printf("(debug) removing player1...\n");
-
-	}
-	else if(strcmp(data[pos].player2, buffer_username) == 0){
-		printf("(debug) removing player2...\n");
-		char* temp_player3;
-		strcpy(temp_player3, data[pos].player3);
-		printf("(debug) leaveRoom(): temp_player3 = %s\n", temp_player3);
-		strcpy(data[pos].player2, temp_player3);
-		if (strcmp(data[pos].player4, "") != 0){
-			char* temp_player4;
-			strcpy(temp_player4, data[pos].player4);
-		  printf("(debug) leaveRoom(): temp_player3 = %s\n", temp_player3);
-			strcpy(data[pos].player3, temp_player4);
-			strcpy(data[pos].player4, "");
-		}
-		else{ 
-			strcpy(data[pos].player3, "");
-			
-		}
+	int active = 0;
+	if (strcmp(data[pos].player1, "") != 0) active++;
+	if (strcmp(data[pos].player2, "") != 0) active++;
+	if (strcmp(data[pos].player3, "") != 0) active++;
+	if (strcmp(data[pos].player4, "") != 0) active++;
+	printf("(debug) leaveRoom(): number of players in room =  %d\n", active);
+	if (strcmp(data[pos].player4, buffer_username) == 0){
+		printf("(debug) removing player4...\n");
+		strcpy(data[pos].player4, "");
 	}
 	else if(strcmp(data[pos].player3, buffer_username) == 0){
 		printf("(debug) removing player3...\n");
-		char* temp_player4;
-		strcpy(temp_player4, data[pos].player4);
-		printf("(debug) leaveRoom(): temp_player4 = %s\n", temp_player4);
-		strcpy(data[pos].player3, temp_player4);
-		strcpy(data[pos].player4, "");
+		if (active == 4){
+			strcpy(data[pos].player3, data[pos].player4);
+			strcpy(data[pos].player4, "");
+		}
+		if (active == 3){
+			strcpy(data[pos].player3, "");
+		}
 	}
-	else if(strcmp(data[pos].player4, buffer_username) == 0){
-		printf("(debug) removing player4...\n");
-		strcpy(data[pos].player4, "");
+	else if(strcmp(data[pos].player2, buffer_username) == 0){
+		printf("(debug) removing player2...\n");
+		if (active == 4){
+			strcpy(data[pos].player2, data[pos].player3);
+			strcpy(data[pos].player3, data[pos].player4);
+			strcpy(data[pos].player4, "");
+		}
+		if (active == 3){
+			strcpy(data[pos].player2, data[pos].player3);
+			strcpy(data[pos].player3, "");
+		}
+		if (active == 2){
+			strcpy(data[pos].player2, "");
+		}
+	}
+	else if(strcmp(data[pos].player1, buffer_username) == 0){
+		printf("(debug) removing player1...\n");
+ 		if (active == 4){
+			strcpy(data[pos].player1, data[pos].player2);
+			strcpy(data[pos].player2, data[pos].player3);
+			strcpy(data[pos].player3, data[pos].player4);
+			strcpy(data[pos].player4, "");
+		}
+		if (active == 3){
+			strcpy(data[pos].player1, data[pos].player2);
+			strcpy(data[pos].player2, data[pos].player3);
+			strcpy(data[pos].player3, "");
+		}
+		if (active == 2){
+			strcpy(data[pos].player1, data[pos].player2);
+			strcpy(data[pos].player2, "");
+		}
+		if (active == 1){
+			strcpy(data[pos].player1, "");
+		}
 	}
 	else printf("(debug) leaveRoom(): error -- player wasn't in room to begin with?\n");
 	
@@ -440,12 +462,19 @@ char * roomsToString(struct rooms * data){
 	return out;
 }
 
-char * currentRoomToString(struct rooms * data, char * roomName){
-	//convert roomName to number and do roomToString
-	char * out = (char *)malloc(sizeof(char) * 1000);
+char * currentRoomToString(struct rooms * data, char * buffer){
+	//incoming buffer: "7 roomname"
+	printf("currentRoomToString() incoming buffer: %s\n", buffer);
+	char* out = (char*)malloc(sizeof(char*) * 1000);
+	char roomName[100];
 	int x = 0;
+	char temp[100];
+	strcpy(roomName, &strchr(buffer, ' ')[1]);
+	printf("currentRoomToString() roomname: %s\n", roomName);
 	
-	while (strcmp(roomName, data[x].roomName) == 0){
+	
+	
+	while (strcmp(roomName, data[x].roomName) != 0){
 		x++;
 	}
 	
@@ -468,31 +497,51 @@ void readyPlus(struct rooms * data, char * buffer){
 	printf("Incrementing data[%d].roomName: %s to: %d\n", x, data[x].roomName, data[x].ready);
 }
 
-int startGame(struct rooms * data, char * buffer){
-	//checks if number of users in room is equal to number of ready users
+char* startGame(struct rooms * data, char * buffer){
+	//buffer = "0 roomName userName"
+	printf("startGame(): incoming buffer = %s\n", buffer);
 	int x = 0;
-	char * roomName = (char *)malloc(sizeof(char) * 1000);
-	strcpy(roomName, &buffer[2]);
-	printf("roomName: %s\n", roomName);
+	char* temp;
+	char buffer_roomname[100];
+	char buffer_username[100];
+	temp = strrchr(buffer, ' ');
+	strcpy(buffer_username, &temp[1]);
+	*temp = 0;
+	temp = strchr(buffer, ' ');
+	strcpy(buffer_roomname, &temp[1]);
+	printf("startGame(): buffer_username = %s\n", buffer_username);
+	printf("startGame(): buffer_roomname = %s\n", buffer_roomname);
+
 	
-	while (strcmp(roomName, data[x].roomName) == 0){
+	while (strcmp(buffer_roomname, data[x].roomName) != 0){
 		x++;
 	}
-	x--;
+
 	int y;
-	if (strcmp(data[x].player1, "") == 0){
-		y = 0;
-	}else if (strcmp(data[x].player2, "") == 0){
-		y = 1;
-	}else if (strcmp(data[x].player3, "") == 0){
-		y = 2;
-	}else if (strcmp(data[x].player4, "") == 0){
-		y = 3;
+	int active = 0;
+	if (strcmp(data[x].player1, "") != 0) active++;
+	if (strcmp(data[x].player2, "") != 0) active++;
+	if (strcmp(data[x].player3, "") != 0) active++;
+	if (strcmp(data[x].player4, "") != 0) active++;
+	
+	
+	if (strcmp(data[x].player1, buffer_username) == 0) y = 0;
+	else if (strcmp(data[x].player2, buffer_username) == 0) y = 1;
+	else if (strcmp(data[x].player3, buffer_username) == 0) y = 2;
+	else if (strcmp(data[x].player4, buffer_username) == 0) y = 3;
+
+
+	if (data[x].ready == active){
+		char* playerNum = (char*)malloc(sizeof(char) * 2);
+		printf("playerNum: %s\n", playerNum);
+		sprintf(playerNum, "%d", y);
+		return playerNum;
 	}
-	if (data[x].ready == y){
-		return 1;
-	}else{
-		return 0;
+	else{
+		char* playerNum = (char*)malloc(sizeof(char) * 2);
+		printf("playerNum: %s\n", playerNum);
+		sprintf(playerNum, "%d", -1);
+		return playerNum;
 	}
 }
 

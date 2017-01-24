@@ -84,3 +84,5 @@ karolR -- 2017-01-21 22:46 PM
 reoK -- 2017-01-21 22:47 PM
 - added joinedPrint function that prints room data after joining room
 - adjusted client formatting
+
+reoK & karolR -- 2017-01-22 22:47 PM
