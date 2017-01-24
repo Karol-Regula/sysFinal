@@ -17,7 +17,7 @@
 struct rooms{
 	char roomName[100];
 	int capacity;
-	int ready
+	int ready;
 	char player1[100];
 	char player2[100];
 	char player3[100];
@@ -137,7 +137,7 @@ void sub_server(int sd) {
 			char * temp = createRoom(buffer, data);
 			printf("data[x].roomName (out of function): %s\n", data[0].roomName);	
 			printf("data[x].capacity (out of function): %d\n", data[0].capacity);	
-			printf("data[x].userNames[0] (out of function) %s\n", data[0].userNames[0]);
+			printf("data[x].player1 (out of function) %s\n", data[0].player1);
 			strcpy(buffer, temp);
 			
 		}if (statusNumber == 6){ // refresh room
@@ -180,16 +180,16 @@ char * joinRoom(char * buffer, struct rooms * data){
 			//room found and can join
 			y = 0;
 			printf("here2\n");
-			while(data[x].userNames[y]){
-				y++;
-			}
+			//while(data[x].userNames[y]){
+			//	y++;
+			//}
 			if (y == MAX - 1 || (y == data[x].ready)){
 				out = "full/in";
 				printf("here3\n");
 				return out;
 			}else{
 				printf("here2\n");
-				strcpy(data[x].userNames[y], userName);
+				//strcpy(data[x].userNames[y], userName);
 				//data[x].userNames[y] = userName;
 				data[x].capacity++;
 				out = roomToString(data, x); //returns all room data in the form of a string
@@ -244,14 +244,15 @@ char * createRoom(char* buffer, struct rooms * data){
 	return out;
 }
 
+
 char * roomToString(struct rooms * data, int x){
 	char * out;
 	int len = 0;
 	
 	int capacity = data[x].capacity;
 	int ready = data[x].ready;
-	char userName[100];
-	strcpy(userName, data[x].userNames[0]);
+	//char userName[100];
+	//strcpy(userName, data[x].userNames[0]);
 	char roomName[100];
 	strcpy(roomName, data[x].roomName);
 	
@@ -269,24 +270,12 @@ char * roomToString(struct rooms * data, int x){
 char * roomsToString(struct rooms * data){
 	char *out = (char *)malloc(sizeof(char) * 100);
 	int x = 0;
-	int y = 0;
 	
 	//roomA 4 2 karol reo?roomB 4 0 god?roomC 4 3 brown platek dw k
 	while (strcmp(data[x].roomName, "") != 0){
 		printf("data[x].roomName = %s\n", data[x].roomName);
 		strcat(out, data[x].roomName);
 		strcat(out, " ");
-		
-
-
-		char ** array = malloc(sizeof(**array) * 4);     //PROBLEMPROBLEMPROBLEMPROBLEM
-		int i;
-		for (i = 0; i < 4; ++i){
-  		array[i] = malloc(sizeof(*array) * 1000);
-		}
-  	(data[x]).userNames = array;
-
-
 
 		char* target = (char*)malloc(sizeof(int) * 2);
 		char* target2 = (char*)malloc(sizeof(int) * 2);
@@ -298,24 +287,35 @@ char * roomsToString(struct rooms * data){
 		strcat(out, " ");
 	  strcat(out, target2);
 		strcat(out, " ");
-		y = 0;
 		printf("rerex\n");
 		printf("x: %d\n", x);
-		printf("y: %d\n", y);
-		printf("data[%d].userNames[%d]: %s\n", x, y, data[x].userNames[y]);
-		printf("strcmp(data[x].userNames[y]): %d\n", strcmp(data[x].userNames[y], ""));
-		while ((strcmp(data[x].userNames[y], "") != 0) && y < 4){
-			printf("rerey\n");
-			strcat(out, data[x].userNames[y]);
+		
+		if (strcmp(data[x].player1, "") != 0){
+			strcat(out, data[x].player1);
 			strcat(out, " ");
-			y++;
 		}
+		if (strcmp(data[x].player2, "") != 0){
+			strcat(out, data[x].player2);
+			strcat(out, " ");
+		}
+		if (strcmp(data[x].player3, "") != 0){
+			strcat(out, data[x].player3);
+			strcat(out, " ");
+		}
+		if (strcmp(data[x].player4, "") != 0){
+			strcat(out, data[x].player4);
+			strcat(out, " ");
+		}
+		printf("out after adding players: %s\n", out);
+			
 		printf("rerex\n");
 		*(strrchr(out, ' ')) = '?';
 		x++;
 	}
-	printf("rered\n");
+	
 	printf("out after rered: %s\n", out);
+	
+	
 	if (strcmp(out, "") != 0)
 		*(strrchr(out, '?')) = 0;
 	else {

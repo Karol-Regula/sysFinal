@@ -232,7 +232,7 @@ void interpreter(int sd, char* username){
 			printf("buffer after read refresh: %s\n", buffer);
 			if (strcmp(buffer, "DNE") == 0)
 				printf("No rooms currently exist. Make one with the "ANSI_COLOR_YELLOW"!create"ANSI_COLOR_RESET" command.\n");
-			//lobbyPrint(buffer);
+			else lobbyPrint(buffer);
 		}
 		else if (strncmp(&buffer[1], "!join", 5) == 0){
 			char *statusNum = &buffer[0];
