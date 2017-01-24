@@ -1,5 +1,5 @@
 # Fnake
-__Fnake - Snake With Friends__
+__Fnake - Snake with Friends__
 
 ## Introduction
 

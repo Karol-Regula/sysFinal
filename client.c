@@ -329,9 +329,9 @@ int roomInterpreter(int sd, char * username, char * roomname, int * isReady){
 			strcat(buffer, username);
 			printf("(debug) room !leave -- buffer to server: %s\n", buffer);
 			write(sd, buffer, sizeof(buffer));
-			//read(sd, buffer, sizeof(buffer));
-			//printf("(debug) room !leave -- buffer from server: %s\n", buffer);
-			//return 0;
+			read(sd, buffer, sizeof(buffer));
+			printf("(debug) room !leave -- buffer from server: %s\n", buffer);
+			return 0;
 		}
 		else if (strcmp(&buffer[1], "!refresh") == 0){
 			printf("[CLIENT] Refreshing the room...\n");

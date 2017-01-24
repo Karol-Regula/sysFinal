@@ -61,3 +61,26 @@ karolR -- 2017-01-21 16:14 PM
 - started work on interpreter function
 - added welcome and help printer functions
 - placeFood function no longer places food in snake
+
+karolR & reoK -- 2017-01-21 18:38 PM
+- added shared memory to server
+
+reoK -- 2017-01-21 20:49 PM
+- added refresh function and formated room printing in lobby
+- removed uncessary files
+
+karolR -- 2017-01-21 21:02 PM
+- added a joinRoom function, manages shared memory that stores data regarding the rooms
+- started to work on function that convers room struct (from shared memory) into a string
+
+reoK & karolR -- 2017-01-21 21:45 PM
+- worked on function that converts single room struct to string to be sent to client
+- miscellaneous small edits to client and server
+
+karolR -- 2017-01-21 22:46 PM
+- added a create function that creates a new room in the shared memory of the server
+- modified statusNumber logic in server
+
+reoK -- 2017-01-21 22:47 PM
+- added joinedPrint function that prints room data after joining room
+- adjusted client formatting
