@@ -3,13 +3,17 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <termios.h>
+#include <assert.h>
+#include <poll.h>
 
+#include "fnake.h"
 #include "pipe_networking.h"
 
 int loginProcedure(int, char**);
 int lobbyInterpreter(int, char*, char **);
 int roomInterpreter(int, char*, char*, int*, int*, int*);
-void gameInterpreter(int, char*, char*);
+void gameInterpreter(int, char*, char*, int*, int*);
 char** parseHelper(char*, char*);
 void welcomePrint();
 void helpPrintLobby();
@@ -67,8 +71,7 @@ int main(int argc, char *argv[]){
 			inRoom = roomInterpreter(sd, username, roomname, &isReady, &inGame, &userNumber);
 		}
 		else{
-			gameInterpreter(sd, username, roomname);
-			exit(1);
+			gameInterpreter(sd, username, roomname, &userNumber, &inGame);
 		}
 	}
 	return 0;
@@ -322,7 +325,7 @@ int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* 
 		else{
 			 int started = 0;
 			 while (! started){
-			 	sleep(5);
+			 	sleep(2);
 				
 			  strcpy(buffer, "0");
 				strcat(buffer, " ");
@@ -404,8 +407,95 @@ int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* 
 }
 	
 	
-void gameInterpreter(int sd, char* username, char* roomname){
+void gameInterpreter(int sd, char* username, char* roomname, int* userNumber, int *inGame){
+	char buffer[MESSAGE_BUFFER_SIZE];
+	int turn = 1;
 	
+	int c = 0;
+  struct termios org_opts, new_opts;
+  int res = 0;
+    //-----  stores old settings -----------
+  res=tcgetattr(STDIN_FILENO, &org_opts);
+  assert(res==0);
+      //---- sets new terminal parms --------
+  printf("Press a key.\n");
+  memcpy(&new_opts, &org_opts, sizeof(new_opts));
+  new_opts.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ECHOPRT | ECHOKE | ICRNL);
+  tcsetattr(STDIN_FILENO, TCSANOW, &new_opts);
+  c = getchar();
+
+  int height = Height;
+  char lastInput = 'd'; //'w' up, 'a' left, 's' down, 'd' right
+  int width = Width;
+  int grid[width][height];
+  int Xc = 3;
+  int Yc = 3;
+  int snakeLength = 6;
+  char input;
+  char output;
+  initGrid(width, height, grid);
+  printGrid(width, height, grid);
+  placeFood(grid);
+  
+ 	while (! *inGame){
+		if (*userNumber == turn){ //send move to server
+			//sleep(1);
+			input = getInput();
+			struct pollfd mypoll = { STDIN_FILENO, POLLIN|POLLPRI };
+
+
+			printf("YOUR turn\n");
+    	if(poll(&mypoll, 1, 30)){
+        scanf("%c", &input);
+        printf("Read string - %c\n", input);
+    	}
+    	else {
+        input = lastInput;
+    	}
+			
+			if (input != '\n'){
+  	    printf("input: %c\n", input);
+    	 	printf("-----------------------------------\n");
+    		int dir;
+	    	strcpy(buffer, "i");
+  	   	strcat(buffer, " ");
+    	 	strcat(buffer, &input);
+    	 	strcat(buffer, " ");
+    	 	strcat(buffer, roomname);
+    		write(sd, buffer, sizeof(buffer));
+     		printf("sent buffer to server: %s\n", buffer);
+			}
+		}
+		
+		else{
+			sleep(3);
+		}
+		sleep(2);
+		strcpy(buffer, "o");
+		strcat(buffer," ");
+		strcat(buffer, roomname);
+		write(sd, buffer, sizeof(buffer)); //ask for the most recent move
+		read(sd, buffer, sizeof(buffer)); //get the next direction	
+		printf("receiving move from server: %s\n", buffer);
+		output = buffer[2];
+		printf("buffer[2]: %c", buffer[2]);
+	  if (output == 'a') Xc -= 1;
+    if (output == 'd') Xc += 1;
+    if (output == 'w') Yc -= 1;
+    if (output == 's') Yc += 1;
+    int edit = editGrid(Xc, Yc, grid, snakeLength);
+    if (edit == -1){
+    	*inGame = 0;
+    }
+    else{
+    	snakeLength = edit;
+    }
+    cycleGrid(width, height, grid);
+    printGrid(width, height, grid);
+    turn++;
+    if (turn == 5) turn = 1;
+  	
+ 	}
 }
 
 

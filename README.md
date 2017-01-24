@@ -1,6 +1,10 @@
 # Fnake
 __Fnake - Snake with Friends__
 
+By Reo Kimura  - Period 10
+
+and Karol Regula - Period 5
+
 ## Introduction
 
 ### Purpose
@@ -30,4 +34,5 @@ __Fnake - Snake with Friends__
 
 ## Bugs and Concerns
   + A not-reproducible segmentation fault rarely appears.
-  + haha
+  + All networking and game code is in place, we have a bug that we have not been able to resolve with the functioning of the game itself. The communication between the server and the client seems to get caught somewhere and never reach the destination function.
+  + Duplicate room names are allowed, causes problems.

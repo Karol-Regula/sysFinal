@@ -22,6 +22,7 @@ struct rooms{
 	char player2[100];
 	char player3[100];
 	char player4[100];
+	char input;
 } rooms;
 
 void sigHandler(int);
@@ -39,6 +40,8 @@ char* roomsToString(struct rooms *);
 char* currentRoomToString(struct rooms *, char *);
 void readyPlus(struct rooms *, char *);
 char * startGame(struct rooms *, char *);
+char* readMove(struct rooms *, char *);
+void writeMove(struct rooms *, char *);
 
 int main() {
 	printf("[SERVER] booting...\n");
@@ -162,11 +165,58 @@ void sub_server(int sd) {
 		}if (statusNumber == 0){
 			char * temp = startGame(data, buffer);
 			strcpy(buffer, temp);
+		}if ((int) buffer[0] == 105){ //(int)'i'
+			writeMove(data, buffer);
+		}if ((int) buffer[0] == 111){ //(int)'o'
+			char* temp = readMove(data, buffer);
+			strcpy(buffer, temp);
 		}
 		printf("(debug) sending to client: %s\n", buffer);
 		write(sd, buffer, sizeof(buffer));
 	}
 }
+
+void writeMove(struct rooms* data, char* buffer){
+	//"i w roomname"
+	printf("writeMove() received buffer: %s\n", buffer);
+	char* out;
+	int x;
+	char buffer_roomName[100];
+	
+	strcpy(buffer_roomName, &strchr(buffer, ' ')[1]);
+	printf("writeMove() buffer_roomName: %s\n", buffer_roomName);
+	
+	while (strcmp(data[x].roomName, "") != 0){
+		printf("Join: looking for roomName: %s\n", buffer_roomName);
+		printf("Comparing to data[x].roomName: %s\n", data[x].roomName);
+		if (! strcmp(buffer_roomName, data[x].roomName)){
+			printf("buffer[2]: %c", buffer[2]);
+			data[x].input = buffer[2];
+		}
+		x++;
+	}
+}
+
+char *readMove(struct rooms *data, char * buffer){
+	char * out;
+	int x = 0;
+	char buffer_roomName[100];
+	strcpy(buffer_roomName, &strchr(buffer, ' ')[1]);
+	
+	
+	while (strcmp(data[x].roomName, "") != 0){
+		printf("Join: looking for roomName: %s\n", buffer_roomName);
+		printf("Comparing to data[x].roomName: %s\n", data[x].roomName);
+		if (! strcmp(buffer_roomName, data[x].roomName)){
+			buffer[2] = data[x].input;
+			printf("buffer[2]: %c", buffer[2]);
+		}
+		x++;
+	}
+}
+
+
+
 
 char * joinRoom(char * buffer, struct rooms * data){
 	//buffer = "4!join roomName userName"

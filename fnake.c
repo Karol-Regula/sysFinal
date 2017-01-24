@@ -6,13 +6,19 @@
 #include <assert.h>
 #include <string.h>
 
-#define Width 50
-#define Height 30
-
 #include "fnake.h"
-#include "pipe_networking.h"
 
+#define MESSAGE_BUFFER_SIZE 1000
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_YELLOWER  "\e[0;33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
+/*
 int main(){
 
   //printf ("\e[9;1t\n");
@@ -70,6 +76,7 @@ int main(){
     }
   }
 }
+*/
 
 void initGrid(int width, int height, int grid[][Height]){
   int x,y;
@@ -130,7 +137,7 @@ int editGrid(int Xc, int Yc, int grid[][Height], int snakeLength){
     printf("%d\n", grid[Xc][Yc]);
     printf("%d, %d\n", Xc, Yc );
     grid[Xc][Yc] = snakeLength;
-    exit(0);
+    return -1;
   }else if (status != 0){ //found food
     snakeLength = status;
     grid[Xc][Yc] = snakeLength;

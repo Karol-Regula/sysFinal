@@ -14,75 +14,97 @@ karolR -- 2017-01-13 11:44 AM
 - added .gitignore to ignore compiled files
 - server can read database (badly)
 
-karolR & reoK -- 2017-01-15 4:02 PM
+karolR & reoK -- 2017-01-15 16:02
 - worked on login procedure
 - standardized communication format between server and client, allows for different modes (login / register / username input)
 - wrote database reading function
 - wrote function that checks if username exists
 - started work on password input
 
-karolR & reoK -- 2017-01-15 4:37 PM
+karolR & reoK -- 2017-01-15 16:37 
 - finished password checking function
 
-karolR -- 2017-01-15 5:10 PM
+karolR -- 2017-01-15 17:10 
 - converted to networking from local piping using provided code
 
-reoK -- 2017-01-15 7:30 PM
+reoK -- 2017-01-15 19:30 
 - completed the registration component of the login process
 - when registration is successful, the server appends an entry to the database
 - basic login procedure is now complete
 
-karolR -- 2017-01-15 7:32 PM
+karolR -- 2017-01-15 19:32
 - started work on snake, made grid, made user interface
 
-karolR -- 2017-01-17 11:49 AM
+karolR -- 2017-01-17 11:49 
 - worked on snake game, fixed multiple issues
 - snake now appears and disappears correctly
 - added collision detection
 - wasd input is filtered and detected correctly
 
-karolR -- 2017-01-18 11:51 AM
+karolR -- 2017-01-18 11:51 
 - added border to snake game
 - added "food" placing
 - added collision detection with food and snake growing upon eating food
 - added colors...
 
-karolR -- 2017-01-19 11:46 AM
+karolR -- 2017-01-19 11:46 
 - figured out way to get input from terminal without pressing enter, commented outfor now, breaks terminal in the process
 - added special printing for food
 - working on better snake growth
 
-karolR -- 2017-01-20 11:43 AM
+karolR -- 2017-01-20 11:43 
 - implemented new way of obtaining input from terminal, still slightly breaks terminal
 - changed way how snake elongates after eating food
 - added random food spawning
 
-karolR -- 2017-01-21 16:14 PM
+karolR -- 2017-01-21 16:14 
 - started work on interpreter function
 - added welcome and help printer functions
 - placeFood function no longer places food in snake
 
-karolR & reoK -- 2017-01-21 18:38 PM
+karolR & reoK -- 2017-01-21 18:38 
 - added shared memory to server
 
-reoK -- 2017-01-21 20:49 PM
+reoK -- 2017-01-21 20:49 
 - added refresh function and formated room printing in lobby
 - removed uncessary files
 
-karolR -- 2017-01-21 21:02 PM
+karolR -- 2017-01-21 21:02 
 - added a joinRoom function, manages shared memory that stores data regarding the rooms
 - started to work on function that convers room struct (from shared memory) into a string
 
-reoK & karolR -- 2017-01-21 21:45 PM
+reoK & karolR -- 2017-01-21 21:45 
 - worked on function that converts single room struct to string to be sent to client
 - miscellaneous small edits to client and server
 
-karolR -- 2017-01-21 22:46 PM
+karolR -- 2017-01-21 22:46 
 - added a create function that creates a new room in the shared memory of the server
 - modified statusNumber logic in server
 
-reoK -- 2017-01-21 22:47 PM
+reoK -- 2017-01-21 22:47 
 - added joinedPrint function that prints room data after joining room
-- adjusted client formatting
+- adjusted client 
 
-reoK & karolR -- 2017-01-22 22:47 PM
+reoK & karolR -- 2017-01-23 12:13
+- added signal handling
+- worked on retreiving and storing data in struct in server
+- updated helplist commands
+
+reoK & karolR -- 2017-01-23 12:52
+- malloced some variables to amend errors
+- manually deleted shared memory, achieved progress
+
+reoK & karolR -- 2017-01-23 22:15
+- changed approach to interacting with shared memory; store memory descriptor in file instead of with global var
+- shared memory consistently opens and closes everytime a server is launched
+- creating rooms and refreshing the lobby does not always work with multiple clients as of now
+
+reoK & karolR -- 2017-01-23 22:47 
+- refreshing the lobby and creating rooms now works for multiple clients
+- modified rooms struct values -- array of usernames to four strings of usernames (hence the max of 4 players)
+
+reoK & karolR -- 2017-01-23 22:51
+- joining rooms function works
+- listing / refreshing list of users after joining room also works
+
+

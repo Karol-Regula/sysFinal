@@ -1,4 +1,9 @@
-//header file for fnake.c
+#ifndef FNAKE_H
+#define FNAKE_H
+
+#define Width 50
+#define Height 30
+
 void printGrid(int, int, int [][Height]);
 void printGridTrue(int, int, int [][Height]);
 void initGrid(int, int, int [][Height]);
@@ -8,3 +13,5 @@ void placeFood(int [][Height]);
 int editGrid(int, int, int [][Height], int);
 int checkCollisions(int, int, int [][Height], int);
 void incrementSnakeLength(int [][Height], int);
+
+#endif
