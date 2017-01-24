@@ -34,5 +34,6 @@ and Karol Regula - Period 5
 
 ## Bugs and Concerns
   + A not-reproducible segmentation fault rarely appears.
+  + **The game when ran by itself works. The communication between the server and the clients also works in the lobby / account / joining game system. However, the linkage of the game with networking is implemented but incredibly buggy.**
   + All networking and game code is in place, we have a bug that we have not been able to resolve with the functioning of the game itself. The communication between the server and the client seems to get caught somewhere and never reach the destination function.
   + Duplicate room names are allowed, causes problems.

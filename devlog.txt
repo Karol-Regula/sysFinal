@@ -107,4 +107,11 @@ reoK & karolR -- 2017-01-23 22:51
 - joining rooms function works
 - listing / refreshing list of users after joining room also works
 
+reoK & karolR -- 2017-01-24 07:50
+- implemented player commands in rooms, added help function for players
+- implemented leaving rooms
+- refresh function now works within rooms and shows the room names and amount of ready people
+- color coded and formatted several aspects of the application
+- implemeted ready-state checking and synchronization, game starts when all clients indicate readiness
+- game incorporated with the networking lobby/room system, though the game itself doesn't function properly when ran over a network
 
