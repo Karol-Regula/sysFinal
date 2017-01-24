@@ -38,6 +38,7 @@ char* roomToString(struct rooms *, int);
 char* roomsToString(struct rooms *);
 char* currentRoomToString(struct rooms *, char *);
 void readyPlus(struct rooms *, char *);
+int startGame(struct rooms *, char *);
 
 int main() {
 	printf("[SERVER] booting...\n");
@@ -284,31 +285,53 @@ char* leaveRoom(char* buffer, struct rooms* data){
 	}
 	printf("(debug) leaveRoom(): pos of room = %d\n", pos);
 	
-	//modify the room data
-	data[pos].ready = 0; //reset ready num
+	//reset ready num
+	data[pos].ready = 0; 
 	printf("(debug) leaveRoom(): read # = %d\n", data[pos].ready);
-	int playerPos = 0;
+	
+	//locate player to be removed and shift other players accordingly
 	if (strcmp(data[pos].player1, buffer_username) == 0){
-		playerPos = 1;
-		strcpy(data[pos].player1, "");
+		printf("(debug) removing player1...\n");
+
 	}
-	else if(strcmp(data[pos].player1, buffer_username) == 0){
-		playerPos = 2;
-		strcpy(data[pos].player2, "");
+	else if(strcmp(data[pos].player2, buffer_username) == 0){
+		printf("(debug) removing player2...\n");
+		char* temp_player3;
+		strcpy(temp_player3, data[pos].player3);
+		printf("(debug) leaveRoom(): temp_player3 = %s\n", temp_player3);
+		strcpy(data[pos].player2, temp_player3);
+		if (strcmp(data[pos].player4, "") != 0){
+			char* temp_player4;
+			strcpy(temp_player4, data[pos].player4);
+		  printf("(debug) leaveRoom(): temp_player3 = %s\n", temp_player3);
+			strcpy(data[pos].player3, temp_player4);
+			strcpy(data[pos].player4, "");
+		}
+		else{ 
+			strcpy(data[pos].player3, "");
+			
+		}
 	}
-	else if(strcmp(data[pos].player1, buffer_username) == 0){
-		playerPos = 3;
-		strcpy(data[pos].player3, "");
+	else if(strcmp(data[pos].player3, buffer_username) == 0){
+		printf("(debug) removing player3...\n");
+		char* temp_player4;
+		strcpy(temp_player4, data[pos].player4);
+		printf("(debug) leaveRoom(): temp_player4 = %s\n", temp_player4);
+		strcpy(data[pos].player3, temp_player4);
+		strcpy(data[pos].player4, "");
 	}
-	else if(strcmp(data[pos].player1, buffer_username) == 0){
-		playerPos = 4;
+	else if(strcmp(data[pos].player4, buffer_username) == 0){
+		printf("(debug) removing player4...\n");
 		strcpy(data[pos].player4, "");
 	}
 	else printf("(debug) leaveRoom(): error -- player wasn't in room to begin with?\n");
 	
-	
-	
-	
+	//check name shifting
+	printf("(debug) CHECKING TO SEE IF NAMES WERE SHIFTED PROPERLY\n");
+	printf("(debug) leaveRoom(): data[pos].player1 = %s\n", data[pos].player1);	
+	printf("(debug) leaveRoom(): data[pos].player2 = %s\n", data[pos].player2);
+	printf("(debug) leaveRoom(): data[pos].player3 = %s\n", data[pos].player3);
+	printf("(debug) leaveRoom(): data[pos].player4 = %s\n", data[pos].player4);
 	
 	//send-off
 	strcpy(out, buffer_roomname);
@@ -443,6 +466,34 @@ void readyPlus(struct rooms * data, char * buffer){
 	x--;
 	data[x].ready++;
 	printf("Incrementing data[%d].roomName: %s to: %d\n", x, data[x].roomName, data[x].ready);
+}
+
+int startGame(struct rooms * data, char * buffer){
+	//checks if number of users in room is equal to number of ready users
+	int x = 0;
+	char * roomName = (char *)malloc(sizeof(char) * 1000);
+	strcpy(roomName, &buffer[2]);
+	printf("roomName: %s\n", roomName);
+	
+	while (strcmp(roomName, data[x].roomName) == 0){
+		x++;
+	}
+	x--;
+	int y;
+	if (strcmp(data[x].player1, "") == 0){
+		y = 0;
+	}else if (strcmp(data[x].player2, "") == 0){
+		y = 1;
+	}else if (strcmp(data[x].player3, "") == 0){
+		y = 2;
+	}else if (strcmp(data[x].player4, "") == 0){
+		y = 3;
+	}
+	if (data[x].ready == y){
+		return 1;
+	}else{
+		return 0;
+	}
 }
 
 

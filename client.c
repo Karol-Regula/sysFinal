@@ -49,6 +49,7 @@ int main(int argc, char *argv[]){
 	int loggedIn = 0;
 	int inRoom = 0;
 	int isReady = 0;
+	int inGame = 0;
 	char* username;
 	char* roomname;
 	while(1){
