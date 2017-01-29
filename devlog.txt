@@ -21,13 +21,13 @@ karolR & reoK -- 2017-01-15 16:02
 - wrote function that checks if username exists
 - started work on password input
 
-karolR & reoK -- 2017-01-15 16:37 
+karolR & reoK -- 2017-01-15 16:37
 - finished password checking function
 
-karolR -- 2017-01-15 17:10 
+karolR -- 2017-01-15 17:10
 - converted to networking from local piping using provided code
 
-reoK -- 2017-01-15 19:30 
+reoK -- 2017-01-15 19:30
 - completed the registration component of the login process
 - when registration is successful, the server appends an entry to the database
 - basic login procedure is now complete
@@ -35,55 +35,55 @@ reoK -- 2017-01-15 19:30
 karolR -- 2017-01-15 19:32
 - started work on snake, made grid, made user interface
 
-karolR -- 2017-01-17 11:49 
+karolR -- 2017-01-17 11:49
 - worked on snake game, fixed multiple issues
 - snake now appears and disappears correctly
 - added collision detection
 - wasd input is filtered and detected correctly
 
-karolR -- 2017-01-18 11:51 
+karolR -- 2017-01-18 11:51
 - added border to snake game
 - added "food" placing
 - added collision detection with food and snake growing upon eating food
 - added colors...
 
-karolR -- 2017-01-19 11:46 
+karolR -- 2017-01-19 11:46
 - figured out way to get input from terminal without pressing enter, commented outfor now, breaks terminal in the process
 - added special printing for food
 - working on better snake growth
 
-karolR -- 2017-01-20 11:43 
+karolR -- 2017-01-20 11:43
 - implemented new way of obtaining input from terminal, still slightly breaks terminal
 - changed way how snake elongates after eating food
 - added random food spawning
 
-karolR -- 2017-01-21 16:14 
+karolR -- 2017-01-21 16:14
 - started work on interpreter function
 - added welcome and help printer functions
 - placeFood function no longer places food in snake
 
-karolR & reoK -- 2017-01-21 18:38 
+karolR & reoK -- 2017-01-21 18:38
 - added shared memory to server
 
-reoK -- 2017-01-21 20:49 
+reoK -- 2017-01-21 20:49
 - added refresh function and formated room printing in lobby
 - removed uncessary files
 
-karolR -- 2017-01-21 21:02 
+karolR -- 2017-01-21 21:02
 - added a joinRoom function, manages shared memory that stores data regarding the rooms
 - started to work on function that convers room struct (from shared memory) into a string
 
-reoK & karolR -- 2017-01-21 21:45 
+reoK & karolR -- 2017-01-21 21:45
 - worked on function that converts single room struct to string to be sent to client
 - miscellaneous small edits to client and server
 
-karolR -- 2017-01-21 22:46 
+karolR -- 2017-01-21 22:46
 - added a create function that creates a new room in the shared memory of the server
 - modified statusNumber logic in server
 
-reoK -- 2017-01-21 22:47 
+reoK -- 2017-01-21 22:47
 - added joinedPrint function that prints room data after joining room
-- adjusted client 
+- adjusted client
 
 reoK & karolR -- 2017-01-23 12:13
 - added signal handling
@@ -99,7 +99,7 @@ reoK & karolR -- 2017-01-23 22:15
 - shared memory consistently opens and closes everytime a server is launched
 - creating rooms and refreshing the lobby does not always work with multiple clients as of now
 
-reoK & karolR -- 2017-01-23 22:47 
+reoK & karolR -- 2017-01-23 22:47
 - refreshing the lobby and creating rooms now works for multiple clients
 - modified rooms struct values -- array of usernames to four strings of usernames (hence the max of 4 players)
 
@@ -131,4 +131,7 @@ karolR and reoK -- 2017-01-29 6:20
 - debugged communication between clients and servers - multiple bugs fixed
 - game adjusts turns based on number of players in room
 - added exit state from game - slightly buggy
+- cleaned up print statements
+- BUG NOTE: only input input when prompted for by the game when playing
 - BUG NOTE: we have a slight de-syncing problem after prolonged gameplay due to the real-time nature of our game
+- BUG NOTE: game seems to act oddly after completing one game, it is advisable to reset the server after one game
