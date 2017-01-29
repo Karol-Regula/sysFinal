@@ -42,6 +42,7 @@ void readyPlus(struct rooms *, char *);
 char * startGame(struct rooms *, char *);
 char* readMove(struct rooms *, char *);
 void writeMove(struct rooms *, char *);
+int doesExist(char*, struct rooms *);
 
 int main() {
 	printf("[SERVER] booting...\n");
@@ -288,12 +289,16 @@ char * createRoom(char* buffer, struct rooms * data){
 	strcpy(roomName, &temp[1]);
 	printf("create: roomName = %s\n", roomName);
 	
+	if (doesExist(roomName, data)){ // check if room already exists
+		out = strcpy(out, "exists");
+		return out;
+	}
+	
 	while (data[x].capacity){
 		printf("data[x].capacity: %d\n", data[x].capacity);
 		printf("data[x].roomName: %s\n", data[x].roomName);
 		x++;
 	}
-	
 
 	printf("WHAT IS x?: %d\n", x);
 	strcpy(data[x].player1, userName);
@@ -305,8 +310,23 @@ char * createRoom(char* buffer, struct rooms * data){
 	data[x].ready = 0;
 	printf("data[x].ready: %d\n", data[x].ready);
 	
-	out = "success";
+	strcpy(out, "success");
 	return out;
+}
+
+int doesExist(char* roomName, struct rooms * data){
+	printf ("Checking if room exists: %s\n", roomName);
+	int x = 0;
+	while (data[x].capacity){
+		printf("Comparing (%s) to (%s)\n", data[x].roomName, roomName);
+		if (! strcmp(data[x].roomName, roomName)){
+			printf("exists\n");
+			return 1;
+		}
+		x++;
+	}
+	printf("does not exist\n");
+	return 0;
 }
 
 char* leaveRoom(char* buffer, struct rooms* data){

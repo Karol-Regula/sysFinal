@@ -21,6 +21,12 @@ void helpPrintRoom();
 void lobbyPrint(char*);
 void joinedPrint(char*);
 
+//TODO
+//header files ...
+//duplicate room check
+//leaving room ready fix
+//make game work
+
 //statusNumbers
 //1 - enter username (auth)
 //2 - enter password (auth)
@@ -294,17 +300,19 @@ int lobbyInterpreter(int sd, char* username, char ** roomname){
 			strcpy(*roomname, &(strrchr(buffer, ' '))[1]); //sets roomname just in case
 			char *statusNum = &buffer[0];
 			*statusNum = '5';
-			printf("here\n");
 			strcat(buffer, " ");
 			strcat(buffer, username);
-			printf("here\n");
 			printf("(debug) sending buffer for !create: %s\n", buffer);
 			write(sd, buffer, sizeof(buffer));
 			read(sd, buffer, sizeof(buffer));
 			printf("(debug) returned buffer for !create: %s\n", buffer);
-			if (strcmp(buffer, "success") == 0)
+			if (strcmp(buffer, "success") == 0){
 				printf("[CLIENT] Room created successfully!\n");
 				return 1;
+			}
+			if (strcmp(buffer, "exists") == 0){
+				printf("[CLIENT] Room already exists, choose a different name.\n");
+			}
 		}
 		else{
 			printf ("[CLIENT] Unknown command. Enter "ANSI_COLOR_YELLOW"!help"ANSI_COLOR_RESET" to display help menu.\n");

@@ -115,3 +115,6 @@ reoK & karolR -- 2017-01-24 07:50
 - implemeted ready-state checking and synchronization, game starts when all clients indicate readiness
 - game incorporated with the networking lobby/room system, though the game itself doesn't function properly when ran over a network
 
+karolR -- 2017-01-28 22:30
+- duplicate room names are no longer allowed, fixes other bugs we had
+- removed some print statements
