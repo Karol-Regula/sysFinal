@@ -118,3 +118,6 @@ reoK & karolR -- 2017-01-24 07:50
 karolR -- 2017-01-28 22:30
 - duplicate room names are no longer allowed, fixes other bugs we had
 - removed some print statements
+
+karolR -- 2017-01-28 22:37
+- finally added header files for server.c and client.c

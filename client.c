@@ -9,21 +9,11 @@
 
 #include "fnake.h"
 #include "pipe_networking.h"
-
-int loginProcedure(int, char**);
-int lobbyInterpreter(int, char*, char **);
-int roomInterpreter(int, char*, char*, int*, int*, int*);
-void gameInterpreter(int, char*, char*, int*, int*);
-char** parseHelper(char*, char*);
-void welcomePrint();
-void helpPrintLobby();
-void helpPrintRoom();
-void lobbyPrint(char*);
-void joinedPrint(char*);
+#include "client.h"
 
 //TODO
 //header files ...
-//duplicate room check
+//duplicate room check - DONE
 //leaving room ready fix
 //make game work
 
@@ -41,7 +31,6 @@ void joinedPrint(char*);
 //Also have/do:
 //test on school computers
 //clone fresh and test
-//add to period 5 repo
 //readme file - listed on site, names of group members and periods (one repo per group?)
 //  -purpose of thing, instructions for running, how to use (tutorial)
 //  -bugs and concerns
@@ -415,7 +404,7 @@ int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* 
 }
 	
 	
-void gameInterpreter(int sd, char* username, char* roomname, int* userNumber, int *inGame){
+void gameInterpreter(int sd, char* username, char* roomname, int* userNumber, int* inGame){
 	char buffer[MESSAGE_BUFFER_SIZE];
 	int turn = 1;
 	
