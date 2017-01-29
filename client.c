@@ -14,8 +14,8 @@
 //TODO
 //header files ... - DONE
 //duplicate room check - DONE
-//leaving room ready fix
-//  -fix colors
+//leaving room ready fix - DONE?
+//  -fix colors - DONE
 //make game work
 
 //statusNumbers
@@ -54,6 +54,7 @@ int main(int argc, char *argv[]){
 	int isReady = 0;
 	int inGame = 0;
 	int userNumber = -1;
+  int active = 0;
 	char* username;
 	char* roomname;
 	while(1){
@@ -64,10 +65,10 @@ int main(int argc, char *argv[]){
 			inRoom = lobbyInterpreter(sd, username, &roomname);
 		}
 		else if(!(inGame)){
-			inRoom = roomInterpreter(sd, username, roomname, &isReady, &inGame, &userNumber);
+			inRoom = roomInterpreter(sd, username, roomname, &isReady, &inGame, &userNumber, &active);
 		}
 		else{
-			gameInterpreter(sd, username, roomname, &userNumber, &inGame);
+			gameInterpreter(sd, username, roomname, &userNumber, &inGame, &isReady, active);
 		}
 	}
 	return 0;
@@ -311,7 +312,7 @@ int lobbyInterpreter(int sd, char* username, char ** roomname){
 	return 0;
 }
 
-int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* inGame, int* userNumber){
+int roomInterpreter(int sd, char* username, char* roomname, int* isReady, int* inGame, int* userNumber, int* active){
 	char buffer[MESSAGE_BUFFER_SIZE];
 	
 	while(! *inGame){
@@ -330,6 +331,7 @@ int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* 
 				strcat(buffer, roomname);
 				strcat(buffer, " ");
 				strcat(buffer, username);
+				strcat(buffer, "\0");
 				printf("username: %s\n", username);
 				printf("Waiting for game to start!\n");
 				printf("(debug) ready, not started -- buffer to server: %s\n", buffer);
@@ -338,7 +340,8 @@ int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* 
 				printf("(debug) ready, not started yet -- buffer from server: %s\n", buffer);
 				if (strcmp(buffer, "-1") != 0){ //user assigned player number, game started
 					started = 1;
-					*userNumber = atoi(buffer);
+					*userNumber = atoi(&buffer[0]);
+					*active = atoi(&buffer[2]);
 					*inGame = 1;
 				}
 			}
@@ -412,9 +415,9 @@ int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* 
 }
 	
 	
-void gameInterpreter(int sd, char* username, char* roomname, int* userNumber, int* inGame){
+void gameInterpreter(int sd, char* username, char* roomname, int* userNumber, int* inGame, int * isReady, int active){
 	char buffer[MESSAGE_BUFFER_SIZE];
-	int turn = 1;
+	int turn = 0;
 	
 	int c = 0;
   struct termios org_opts, new_opts;
@@ -427,55 +430,74 @@ void gameInterpreter(int sd, char* username, char* roomname, int* userNumber, in
   memcpy(&new_opts, &org_opts, sizeof(new_opts));
   new_opts.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ECHOPRT | ECHOKE | ICRNL);
   tcsetattr(STDIN_FILENO, TCSANOW, &new_opts);
-  c = getchar();
+  //c = getchar();
 
   int height = Height;
-  char lastInput = 'd'; //'w' up, 'a' left, 's' down, 'd' right
   int width = Width;
+  char lastInput = 's'; //'w' up, 'a' left, 's' down, 'd' right
   int grid[width][height];
   int Xc = 3;
   int Yc = 3;
   int snakeLength = 6;
-  char input;
+  char input = 's';
   char output;
   initGrid(width, height, grid);
   printGrid(width, height, grid);
   placeFood(grid);
+  int pollNum = 0;
+  clock_t start_t, end_t, total_t;
   
- 	while (! *inGame){
+ 	while (*inGame){
 		if (*userNumber == turn){ //send move to server
 			//sleep(1);
-			input = getInput();
+			printf("YOUR turn\n");
+			//input = getInput();
 			struct pollfd mypoll = { STDIN_FILENO, POLLIN|POLLPRI };
 
-
-			printf("YOUR turn\n");
-    	if(poll(&mypoll, 1, 30)){
+			start_t = clock();
+    	if(pollNum = poll(&mypoll, 1, 2000)){ //potential error source 
         scanf("%c", &input);
         printf("Read string - %c\n", input);
+        lastInput = input;
     	}
-    	else {
-        input = lastInput;
-    	}
+      end_t = clock();
+      total_t = (long double)(end_t - start_t); // CLOCKS_PER_SEC;
+      //printf("total_t: %z\n", total_t);
+      printf("start_t: %Lf", (long double)(start_t));
+      printf("end_t: %Lf", (long double)(end_t));
+      printf("total_t: %Lf", (long double)(total_t));
+      //usleep(200000 - (total_t * 100000));
+      
+      
+			printf("pollNum: %d\n", pollNum);
+    	printf("(debug) given input: %c\n", input);
 			
-			if (input != '\n'){
-  	    printf("input: %c\n", input);
-    	 	printf("-----------------------------------\n");
-    		int dir;
-	    	strcpy(buffer, "i");
-  	   	strcat(buffer, " ");
-    	 	strcat(buffer, &input);
-    	 	strcat(buffer, " ");
-    	 	strcat(buffer, roomname);
-    		write(sd, buffer, sizeof(buffer));
-     		printf("sent buffer to server: %s\n", buffer);
+			if (input != 'a' && input != 'w' && input != 's' && input != 'd'){
+				input = lastInput;
+				printf("input after no input was given: %c\n", input);
+				printf("let's just check lastInput too: %c\n", lastInput);
 			}
+    	printf("-----------------------------------\n");
+    	int dir;
+	    strcpy(buffer, "i");
+	    printf("buffer: %s\n", buffer);
+  	  strcat(buffer, " ");
+  	  printf("buffer: %s\n", buffer);
+    	buffer[2] = input;
+    	buffer[3] = 0;
+    	printf("buffer after buffer[3] = 0: %s\n", buffer);
+    	strcat(buffer, " ");
+    	printf("buffer: %s\n", buffer);
+    	strcat(buffer, roomname);
+    	printf("buffer: %s\n", buffer);
+    	write(sd, buffer, sizeof(buffer));
+    	printf("sent buffer to server: %s\n", buffer);
+    	read(sd, buffer, sizeof(buffer));
+		}else{
+			sleep(2);
 		}
 		
-		else{
-			sleep(3);
-		}
-		sleep(2);
+		sleep(4);
 		strcpy(buffer, "o");
 		strcat(buffer," ");
 		strcat(buffer, roomname);
@@ -491,6 +513,8 @@ void gameInterpreter(int sd, char* username, char* roomname, int* userNumber, in
     int edit = editGrid(Xc, Yc, grid, snakeLength);
     if (edit == -1){
     	*inGame = 0;
+    	*isReady = 0;
+    	return;
     }
     else{
     	snakeLength = edit;
@@ -498,8 +522,7 @@ void gameInterpreter(int sd, char* username, char* roomname, int* userNumber, in
     cycleGrid(width, height, grid);
     printGrid(width, height, grid);
     turn++;
-    if (turn == 5) turn = 1;
-  	
+    if (turn == active) turn = 0;
  	}
 }
 

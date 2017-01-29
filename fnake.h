@@ -1,8 +1,8 @@
 #ifndef FNAKE_H
 #define FNAKE_H
 
-#define Width 50
-#define Height 30
+#define Width 25
+#define Height 12
 
 void printGrid(int, int, int [][Height]);
 void printGridTrue(int, int, int [][Height]);

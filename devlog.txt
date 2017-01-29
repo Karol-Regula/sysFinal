@@ -125,3 +125,10 @@ karolR -- 2017-01-28 22:37
 karolR -- 2017-01-28 23:49
 - fixed negative ready statuses when users leave rooms
 - changed display color of empty rooms from red to green
+
+karolR and reoK -- 2017-01-29 6:20
+- game works! ... if you treat it nicely :)
+- debugged communication between clients and servers - multiple bugs fixed
+- game adjusts turns based on number of players in room
+- added exit state from game - slightly buggy
+- BUG NOTE: we have a slight de-syncing problem after prolonged gameplay due to the real-time nature of our game

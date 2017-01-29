@@ -132,13 +132,15 @@ void sub_server(int sd) {
 			readyPlus(data, buffer);
 			char* temp = "done";
 			strcpy(buffer, temp);
-		}if (statusNumber == 0){
-			char * temp = startGame(data, buffer);
-			strcpy(buffer, temp);
 		}if ((int) buffer[0] == 105){ //(int)'i'
 			writeMove(data, buffer);
-		}if ((int) buffer[0] == 111){ //(int)'o'
+			char* temp = "yo wassup";
+			strcpy(buffer, temp);
+		}else if ((int) buffer[0] == 111){ //(int)'o'
 			char* temp = readMove(data, buffer);
+			strcpy(buffer, temp);
+		}else if (statusNumber == 0){
+			char * temp = startGame(data, buffer);
 			strcpy(buffer, temp);
 		}
 		printf("(debug) sending to client: %s\n", buffer);
@@ -150,17 +152,17 @@ void writeMove(struct rooms* data, char* buffer){
 	//"i w roomname"
 	printf("writeMove() received buffer: %s\n", buffer);
 	char* out;
-	int x;
+	int x = 0;
 	char buffer_roomName[100];
 	
-	strcpy(buffer_roomName, &strchr(buffer, ' ')[1]);
+	strcpy(buffer_roomName, &strrchr(buffer, ' ')[1]);
 	printf("writeMove() buffer_roomName: %s\n", buffer_roomName);
 	
 	while (strcmp(data[x].roomName, "") != 0){
-		printf("Join: looking for roomName: %s\n", buffer_roomName);
-		printf("Comparing to data[x].roomName: %s\n", data[x].roomName);
-		if (! strcmp(buffer_roomName, data[x].roomName)){
-			printf("buffer[2]: %c", buffer[2]);
+		printf("writeMove() looking for roomName: %s\n", buffer_roomName);
+		printf("writeMove() Comparing to data[x].roomName: %s\n", data[x].roomName);
+		if (strcmp(buffer_roomName, data[x].roomName) == 0){
+			printf("writeMove() buffer[2]: %c\n", buffer[2]);
 			data[x].input = buffer[2];
 		}
 		x++;
@@ -171,18 +173,25 @@ char *readMove(struct rooms *data, char * buffer){
 	char * out;
 	int x = 0;
 	char buffer_roomName[100];
-	strcpy(buffer_roomName, &strchr(buffer, ' ')[1]);
+	strcpy(buffer_roomName, &strrchr(buffer, ' ')[1]);
 	
 	
 	while (strcmp(data[x].roomName, "") != 0){
-		printf("Join: looking for roomName: %s\n", buffer_roomName);
-		printf("Comparing to data[x].roomName: %s\n", data[x].roomName);
-		if (! strcmp(buffer_roomName, data[x].roomName)){
+		printf("readMove() looking for roomName: %s\n", buffer_roomName);
+		printf("readMove() Comparing to data[x].roomName: %s\n", data[x].roomName);
+		if (strcmp(buffer_roomName, data[x].roomName) == 0){
 			buffer[2] = data[x].input;
-			printf("buffer[2]: %c", buffer[2]);
+			buffer[3] = 0;
+			printf("readMove() buffer[2]: %c\n", buffer[2]);
 		}
+		printf("x: %d\n", x);
 		x++;
 	}
+	printf("buffer after loop: %s\n", buffer);
+	//strcpy(out, buffer);
+	//strcat(out, "\0");
+	printf("readMove() final buffer: %s\n", buffer);
+	return buffer;
 }
 
 
@@ -602,16 +611,20 @@ char* startGame(struct rooms * data, char * buffer){
 
 	if (data[x].ready == active){
 		char* playerNum = (char*)malloc(sizeof(char) * 4);
-		printf("playerNum: %s\n", playerNum);
+		char* activeNum = (char*)malloc(sizeof(char) * 4);
 		sprintf(playerNum, "%d", y);
+		sprintf(activeNum, "%d", active);
+		strcat(playerNum, " ");
+		strcat(playerNum, activeNum);
 		strcat(playerNum, "\0");
+		printf("playerNum: %s\n", playerNum);
 		return playerNum;
 	}
 	else{
 		char* playerNum = (char*)malloc(sizeof(char) * 4);
-		printf("playerNum: %s\n", playerNum);
 		sprintf(playerNum, "%d", -1);
 		strcat(playerNum, "\0");
+		printf("playerNum: %s\n", playerNum);
 		return playerNum;
 	}
 }
