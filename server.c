@@ -186,8 +186,6 @@ char *readMove(struct rooms *data, char * buffer){
 }
 
 
-
-
 char * joinRoom(char * buffer, struct rooms * data){
 	//buffer = "4!join roomName userName"
 	char * out;
@@ -239,6 +237,7 @@ char * joinRoom(char * buffer, struct rooms * data){
 	return out;
 }
 
+
 char * createRoom(char* buffer, struct rooms * data){
 	//buffer = "5!create roomName userName"
 	char* out;
@@ -283,6 +282,7 @@ char * createRoom(char* buffer, struct rooms * data){
 	return out;
 }
 
+
 int doesExist(char* roomName, struct rooms * data){
 	printf ("Checking if room exists: %s\n", roomName);
 	int x = 0;
@@ -298,22 +298,49 @@ int doesExist(char* roomName, struct rooms * data){
 	return 0;
 }
 
+
 char* leaveRoom(char* buffer, struct rooms* data){
-	//buffer = "8!leave roomName userName"
+	//buffer = "8!leave roomName userName 1"
 	char* out;
 	char* temp;
 	char buffer_roomname[100];
 	char buffer_username[100];
+	int buffer_ready = 100; // to easily know when something goes wrong
 	
 	//get relevant data from buffer sent by client
+	/*
 	temp = strrchr(buffer, ' ');
-	strcpy(buffer_username, &temp[1]);
-	printf("(debug) leaveRoom(): username = %s\n", buffer_username);
-	*temp = 0;
-	printf("(debug) leaveRoom(): buffer =  %s\n", buffer);
+	buffer_ready = atoi(temp[1]);
+	temp[1] = 0;
+	printf("(debug) leaveRoom(): ready = %s\n", buffer_ready);
+	
 	temp = strchr(buffer, ' ');
 	strcpy(buffer_roomname, &temp[1]);
 	printf("(debug) leaveRoom(): roomname = %s\n", buffer_roomname);
+	
+	temp = strchr(&temp[1], ' ');
+	strcpy(buffer_username, &temp[1]);
+	printf("(debug) leaveRoom(): username = %s\n", buffer_username);
+	
+	printf("(debug) leaveRoom(): buffer =  %s\n", buffer);
+	*/
+	
+  char * pch;
+  printf ("Splitting string \"%s\" into tokens:\n", buffer);
+  pch = strtok (buffer," ");
+  printf ("%s\n",pch);
+  pch = strtok (NULL, " ");
+  strcpy(buffer_roomname, pch);
+  pch = strtok (NULL, " ");
+  strcpy(buffer_username, pch);
+  pch = strtok (NULL, " ");
+  buffer_ready =  atoi(pch);
+  
+  printf("(debug) leaveRoom() - ready: %d\n", buffer_ready);
+	printf("(debug) leaveRoom() - roomname: %s\n", buffer_roomname);
+	printf("(debug) leaveRoom() - username: %s\n", buffer_username);
+	printf("(debug) leaveRoom() - buffer: %s\n", buffer);
+  
 	
 	//find location of the room you're leaving
 	int pos = 0;
@@ -325,7 +352,9 @@ char* leaveRoom(char* buffer, struct rooms* data){
 	printf("(debug) leaveRoom(): pos of room = %d\n", pos);
 	
 	//modify ready num
-	data[pos].ready--; 
+	if (buffer_ready == 1){
+		data[pos].ready--; 
+	}
 	printf("(debug) leaveRoom(): read # = %d\n", data[pos].ready);
 	
 	//locate player to be removed and shift other players accordingly

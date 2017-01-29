@@ -121,3 +121,7 @@ karolR -- 2017-01-28 22:30
 
 karolR -- 2017-01-28 22:37
 - finally added header files for server.c and client.c
+
+karolR -- 2017-01-28 23:49
+- fixed negative ready statuses when users leave rooms
+- changed display color of empty rooms from red to green

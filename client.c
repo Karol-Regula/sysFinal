@@ -12,9 +12,10 @@
 #include "client.h"
 
 //TODO
-//header files ...
+//header files ... - DONE
 //duplicate room check - DONE
 //leaving room ready fix
+//  -fix colors
 //make game work
 
 //statusNumbers
@@ -211,7 +212,7 @@ void lobbyPrint(char* data){
 		while (room[pNum]) pNum++;
 		pNum -= 3;
 
-		if (pNum == atoi(room[2])) //game is in-session
+		if (pNum == atoi(room[2]) && pNum) //game is in-session
 			printf(ANSI_COLOR_RED"%s "ANSI_COLOR_RESET"(%d in, %s ready, %s max)\n", room[0], pNum, room[2], room[1]);
 		else if (pNum == atoi(room[1]) && pNum != 0) //room is full
 			printf(ANSI_COLOR_YELLOW"%s "ANSI_COLOR_RESET"(%d in, %s ready, %s max)\n", room[0], pNum, room[2], room[1]);
@@ -330,6 +331,7 @@ int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* 
 				strcat(buffer, " ");
 				strcat(buffer, username);
 				printf("username: %s\n", username);
+				printf("Waiting for game to start!\n");
 				printf("(debug) ready, not started -- buffer to server: %s\n", buffer);
 				write(sd, buffer, sizeof(buffer));
 				read(sd, buffer, sizeof(buffer));
@@ -362,6 +364,12 @@ int roomInterpreter(int sd, char * username, char* roomname, int* isReady, int* 
 				strcat(buffer, roomname);
 				strcat(buffer, " ");
 				strcat(buffer, username);
+				strcat(buffer, " ");
+				
+				char temp3[2];
+				sprintf(temp3, "%d", *isReady);
+
+				strcat(buffer, temp3);//so that server knows whether to subtract from ready
 				printf("(debug) room !leave -- buffer to server: %s\n", buffer);
 				write(sd, buffer, sizeof(buffer));
 				read(sd, buffer, sizeof(buffer));
